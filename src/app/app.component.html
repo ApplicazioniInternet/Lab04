@@ -1,3 +1,42 @@
-<mat-toolbar>
-    Toolbar
-  </mat-toolbar>
+<div>
+    <mat-toolbar color="primary"> <!-- Inizio della toolbar -->
+      <p style="padding: 64px;">Acquista posizioni</p>
+      <span class="fill-remaining-space"></span>
+      <button mat-icon-button [mat-menu-trigger-for]="menu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+    </mat-toolbar> <!-- Fine della toolbar -->
+
+    <mat-menu x-position="before" #menu="matMenu"> <!-- Inizio menu di destra -->
+      <button mat-menu-item id="menu-item">Informazioni profilo</button>
+      <button mat-menu-item id="menu-item">Logout</button>
+    </mat-menu> <!-- Fine menu di destra -->
+
+    <div class="bg-map-div"> <!-- Inizio della divisione con la mappa -->
+      <mat-card>
+        <div 
+          id="map-id"
+          style="height: 300px;" 
+          leaflet 
+          [leafletOptions]="options"
+          [leafletLayersControl]="layersControl">
+        </div>
+      </mat-card>
+    </div> <!-- Fine della divisione con la mappa -->
+
+    <div class="bg-form-div"> <!-- Inizio della divisione del form -->
+      <mat-card class="bg-form-card" >
+        <mat-card-title>
+          Titolo della sezione da aggiornare
+        </mat-card-title>
+        <mat-tab-group mat-stretch-tabs>
+          <mat-tab label="Scegli posizioni">
+            <p>Qua ci sarà il form per scegliere le posizioni</p>
+          </mat-tab>
+          <mat-tab label="Posizioni acquistate">
+            <p>Qua ci sta la lista di posizioni acquistate</p>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card>
+    </div> <!-- Fine della divisione del form -->
+</div>

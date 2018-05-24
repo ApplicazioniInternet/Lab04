@@ -1,0 +1,46 @@
+.bg-container {
+  width: 100vw;
+  height: 100vw;
+}
+
+.bg-section-compra{
+  padding: 8px;
+}
+
+.bg-section-carrello{
+  padding: 8px;
+}
+
+.bg-form-tab{
+  align-content: center;
+  width: 100%;
+}
+
+.bg-form-card{
+  align-content: center;
+  height: 100%;
+}
+
+.bg-form-div{
+  align-content: center;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  float: right;
+}
+
+.bg-map-div{
+  float: left;
+  width: 50%;
+}
+
+#menu-item{
+  margin: 4px;
+  align-content: center;
+  text-align: center;
+  vertical-align: baseline;
+}
+
+.fill-remaining-space {
+  flex: 1 1 auto;
+}

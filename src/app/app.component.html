@@ -13,15 +13,7 @@
     </mat-menu> <!-- Fine menu di destra -->
 
     <div class="bg-map-div"> <!-- Inizio della divisione con la mappa -->
-      <mat-card>
-        <div 
-          id="map-id"
-          style="height: 300px;" 
-          leaflet 
-          [leafletOptions]="options"
-          [leafletLayersControl]="layersControl">
-        </div>
-      </mat-card>
+      <app-map></app-map>
     </div> <!-- Fine della divisione con la mappa -->
 
     <div class="bg-form-div"> <!-- Inizio della divisione del form -->
@@ -31,10 +23,10 @@
         </mat-card-title>
         <mat-tab-group mat-stretch-tabs>
           <mat-tab label="Scegli posizioni">
-            <p>Qua ci sarà il form per scegliere le posizioni</p>
+            <app-choose-area></app-choose-area>
           </mat-tab>
           <mat-tab label="Posizioni acquistate">
-            <p>Qua ci sta la lista di posizioni acquistate</p>
+            <app-positions-bought></app-positions-bought>
           </mat-tab>
         </mat-tab-group>
       </mat-card>

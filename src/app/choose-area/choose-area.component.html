@@ -1,0 +1,6 @@
+<div class="container">
+  <mat-form-field class="bg_choose_positions_input">
+    <input matInput placeholder="Latitudine" [formControl]="latitude" required>
+    <mat-error *ngIf="latitude.invalid">{{getErrorMessage()}}</mat-error>
+  </mat-form-field>
+</div>

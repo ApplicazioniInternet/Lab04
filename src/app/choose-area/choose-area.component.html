@@ -1,6 +1,26 @@
-<div class="container">
-  <mat-form-field class="bg_choose_positions_input">
-    <input matInput placeholder="Latitudine" [formControl]="latitude" required>
-    <mat-error *ngIf="latitude.invalid">{{getErrorMessage()}}</mat-error>
-  </mat-form-field>
+<p>Scegli il numero di punti per disegnare un'area</p>
+<mat-slider 
+  thumbLabel 
+  [displayWith]="formatLabel" 
+  tickInterval="1" min="3" max="10"
+  (input)='pitch($event)'  
+></mat-slider>
+<div class="container-row">
+  <div class="container-column">
+    <ul id="no-bullet-ul">
+        <li *ngFor="let i of counter(numberOfVertices)">
+          <div class="container-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Latitudine vertice #{{i + 1}}</mat-label>
+              <input matInput placeholder="Latitudine">
+              <mat-icon matSuffix>place</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Longitudine vertice #{{i + 1}}</mat-label>
+              <input matInput placeholder="Longitudine">
+              <mat-icon matSuffix>place</mat-icon>
+            </mat-form-field>
+          </div>
+        </li>
+  </ul>
 </div>

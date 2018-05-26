@@ -19,14 +19,18 @@
     <div class="bg-form-div"> <!-- Inizio della divisione del form -->
       <mat-card class="bg-form-card" >
         <mat-card-title>
-          Titolo della sezione da aggiornare
+          Posizioni
         </mat-card-title>
         <mat-tab-group mat-stretch-tabs>
           <mat-tab label="Scegli posizioni">
-            <app-choose-area></app-choose-area>
+            <ng-template matTabContent>
+              <app-choose-area></app-choose-area>
+            </ng-template>
           </mat-tab>
           <mat-tab label="Posizioni acquistate">
-            <app-positions-bought></app-positions-bought>
+            <ng-template matTabContent>
+              <app-positions-bought></app-positions-bought>
+            </ng-template>
           </mat-tab>
         </mat-tab-group>
       </mat-card>

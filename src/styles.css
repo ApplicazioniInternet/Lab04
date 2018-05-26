@@ -22,3 +22,8 @@ mat-toolbar-row {
   right: 20px;
   color: white;
 }
+
+
+#no-bullet-ul {
+  list-style-type: none;
+}

@@ -1,4 +1,21 @@
-.bg_choose_positions_input {
-    width: 300px;
-    float: left;
+.container-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.container-column {
+    display: flex;
+    width: 50%;
+    flex-direction: column;
+    margin: 4px;
+    padding: 4px;
+}
+
+mat-slider {
+  width: 300px;
+}
+
+mat-form-field{
+  margin: 4px;
 }

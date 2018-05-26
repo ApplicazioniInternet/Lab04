@@ -11,6 +11,7 @@ import { ChooseAreaComponent } from './choose-area/choose-area.component';
 import { PositionsBoughtComponent } from './positions-bought/positions-bought.component';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BoughtPositionsComponent } from './bought-positions/bought-positions.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MapComponent,
     ChooseAreaComponent,
     PositionsBoughtComponent,
+    BoughtPositionsComponent,
   ],
   imports: [
     BrowserModule,

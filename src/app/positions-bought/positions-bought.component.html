@@ -1,3 +1,26 @@
-<p>
-  positions-bought works!
-</p>
+<div class="container">
+  <ul id="no-bullet-ul">
+    <mat-accordion>
+      <li 
+        *ngFor="let position of positions"
+      >
+          <mat-expansion-panel 
+            [expanded]="false"
+            (opened)="panelOpenState = true" 
+            (closed)="panelOpenState = false"
+          >
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Posizione: {{position.id}}
+              </mat-panel-title>
+              <mat-panel-description>
+                {{panelOpenState ?  'Clicca per chiudere i dettagli della posizione' : 'Clicca per vedere i dettagli della posizione'}}
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <p><span>Latitudine: </span>{{position.latitude}}</p>
+            <p><span>Longitudine: </span>{{position.longitude}}</p>
+          </mat-expansion-panel>
+      </li>
+    </mat-accordion>
+  </ul>
+</div>

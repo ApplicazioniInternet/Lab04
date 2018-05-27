@@ -15,7 +15,7 @@ export class PositionService {
   }
 
   
-  isPositionsInPolygon(point:Position, polygon:Position[]): Boolean {
+  private isPositionsInPolygon(point:Position, polygon:Position[]): Boolean {
     let x = point.longitude;
     let y = point.latitude;
     
@@ -29,5 +29,27 @@ export class PositionService {
         if (intersect) inside = !inside;
     }
     return inside;
+  }
+
+  countPositionsInPolygon(polygon:Position[]): number{
+    let count:number=0;
+    
+    for(let pos of POSITIONS){
+      if(this.isPositionsInPolygon(pos, polygon)){
+        count++;
+      }
+    }
+    return count;
+  }
+
+  getPositionsInPolygon(polygon:Position[]): Position[]{
+    let positionList: Position[] = new Array<Position>();
+
+    for(let pos of POSITIONS){
+      if(this.isPositionsInPolygon(pos, polygon)){
+        positionList.push(pos);
+      }
+    }
+    return positionList;
   }
 }

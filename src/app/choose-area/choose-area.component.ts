@@ -12,7 +12,7 @@ export class ChooseAreaComponent implements OnInit {
   latitudeFormControls: FormControl[];
   longitudeFormControls: FormControl[];
   numberOfVertices = 3;
-  index= 0;
+  index = 0;
 
   constructor(private positionService: PositionService) {
     this.latitudeFormControls = new Array(this.numberOfVertices)

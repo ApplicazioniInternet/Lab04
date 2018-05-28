@@ -1,6 +1,7 @@
 .container-row {
   display: flex;
   flex-direction: row;
+  align-content: center;
   width: 100%;
 }
 
@@ -8,14 +9,19 @@
     display: flex;
     width: 50%;
     flex-direction: column;
-    margin: 4px;
-    padding: 4px;
+    align-content: center;
+}
+
+.container-item {
+  display: flex;
+  flex-direction: column;
+  margin: 4px;
+}
+
+.container-item > * {
+  width: 100%;
 }
 
 mat-slider {
   width: 300px;
-}
-
-mat-form-field{
-  margin: 4px;
 }

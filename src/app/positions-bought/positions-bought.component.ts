@@ -12,11 +12,11 @@ export class PositionsBoughtComponent implements OnInit {
   panelOpenState: boolean;
 
   constructor(private positionService: PositionService) {
-    this.getPositions();
     this.panelOpenState = false;
   }
 
   ngOnInit() {
+    this.getPositions();
   }
 
   getPositions(): void {

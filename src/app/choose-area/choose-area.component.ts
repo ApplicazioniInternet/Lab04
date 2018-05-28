@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { Position } from '../position';
+import { FormControl, Validators, Form } from '@angular/forms';
+import { PositionForm } from './positionForm';
 import { PositionService } from '../position.service';
+import { Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-choose-area',
@@ -9,16 +10,10 @@ import { PositionService } from '../position.service';
   styleUrls: ['./choose-area.component.css']
 })
 export class ChooseAreaComponent implements OnInit {
-  latitudeFormControls: FormControl[];
-  longitudeFormControls: FormControl[];
   numberOfVertices = 3;
-  index = 0;
+  positions: Array<PositionForm> = new Array(this.numberOfVertices).fill(new PositionForm);
 
   constructor(private positionService: PositionService) {
-    this.latitudeFormControls = new Array(this.numberOfVertices)
-                            .fill(new FormControl());
-    this.longitudeFormControls = new Array(this.numberOfVertices)
-      .fill(new FormControl('', [Validators.required, Validators.min(0), Validators.max(360)]));
   }
 
   ngOnInit() {
@@ -38,11 +33,6 @@ export class ChooseAreaComponent implements OnInit {
 
   pitch(event: any) {
     this.numberOfVertices = event.value;
-    this.longitudeFormControls.push(new FormControl('', [Validators.required, Validators.min(0), Validators.max(360)]));
-    this.latitudeFormControls.push(new FormControl('', [Validators.required, Validators.min(-90), Validators.max(90)]));
-  }
-
-  updateIndex(i: number) {
-    this.index = i;
+    this.positions.push( new PositionForm() );
   }
 }

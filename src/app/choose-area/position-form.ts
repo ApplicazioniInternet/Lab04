@@ -2,7 +2,7 @@ import { FormControl, Validators, Form } from '@angular/forms';
 import { Position } from '../position';
 
 export class PositionForm {
-    positionValue: Position;
+    positionValue?: Position;
     latitudeFormControl?: FormControl;
     longitudeFormControl?: FormControl;
 
@@ -24,5 +24,13 @@ export class PositionForm {
             this.longitudeFormControl.hasError('max') ? 'Valore massimo longitudine = 360' :
             this.longitudeFormControl.hasError('min') ? 'Valore minimo longitudine = 0' :
             '';
+    }
+
+    inputLatitude(latitude: number) {
+        this.positionValue.latitude = latitude;
+    }
+
+    inputLongitude(longitude: number) {
+        this.positionValue.longitude = longitude;
     }
 }

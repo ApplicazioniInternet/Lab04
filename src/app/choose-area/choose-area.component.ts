@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators, Form } from '@angular/forms';
-import { PositionForm } from './positionForm';
+import { PositionForm } from './position-form';
 import { PositionService } from '../position.service';
 import { Input, Output, EventEmitter } from '@angular/core';
 
@@ -11,7 +11,8 @@ import { Input, Output, EventEmitter } from '@angular/core';
 })
 export class ChooseAreaComponent implements OnInit {
   numberOfVertices = 3;
-  positions: Array<PositionForm> = new Array(this.numberOfVertices).fill(new PositionForm);
+  maxNumberOfVertices = 10;
+  positions: Array<PositionForm> = new Array(this.maxNumberOfVertices).fill(new PositionForm);
 
   constructor(private positionService: PositionService) {
   }
@@ -27,12 +28,31 @@ export class ChooseAreaComponent implements OnInit {
     return value;
   }
 
-  counter(size: number) {
-    return new Array(size).fill(0).map((x, i) => i);
+  getPositions(size: number) {
+    return this.positions.slice(0, size);
+  }
+
+  pushPositionForms(n: number) {
+    for ( let i = 0; i < n; i++ ) {
+      this.positions.push(new PositionForm);
+    }
+  }
+
+  popPositionForms(n: number) {
+    this.positions.slice(0, this.numberOfVertices - n - 1 );
   }
 
   pitch(event: any) {
     this.numberOfVertices = event.value;
-    this.positions.push( new PositionForm() );
+  }
+
+  submit() {
+    let i = 0;
+    for (const position of this.positions) {
+      if ( i++ >= this.numberOfVertices ) {
+        return;
+      }
+      console.log(position.positionValue.latitude + ' ' + position.positionValue.longitude);
+    }
   }
 }

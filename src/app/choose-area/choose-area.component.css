@@ -1,3 +1,7 @@
+.container{
+  padding: 8px;
+}
+
 .container-row {
   display: flex;
   flex-direction: row;
@@ -24,4 +28,8 @@
 
 mat-slider {
   width: 300px;
+}
+
+mat-fab {
+  margin: 4px;
 }

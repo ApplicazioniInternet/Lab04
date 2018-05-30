@@ -11,8 +11,7 @@ import { Input, Output, EventEmitter } from '@angular/core';
 })
 export class ChooseAreaComponent implements OnInit {
   numberOfVertices = 3;
-  maxNumberOfVertices = 10;
-  positions: Array<PositionForm> = new Array(this.maxNumberOfVertices).fill(new PositionForm);
+  positions: Array<PositionForm> = new Array(this.numberOfVertices).fill(new PositionForm);
 
   constructor(private positionService: PositionService) {
   }
@@ -43,6 +42,12 @@ export class ChooseAreaComponent implements OnInit {
   }
 
   pitch(event: any) {
+    if (this.numberOfVertices < event.value) {
+      this.pushPositionForms(event.value - this.numberOfVertices);
+    } else if (this.numberOfVertices > event.value) {
+      this.popPositionForms(this.numberOfVertices - event.value);
+    }
+
     this.numberOfVertices = event.value;
   }
 

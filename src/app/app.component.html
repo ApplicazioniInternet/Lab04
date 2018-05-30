@@ -2,15 +2,21 @@
     <mat-toolbar color="primary"> <!-- Inizio della toolbar -->
       <p style="padding: 64px;">Acquista posizioni</p>
       <span class="fill-remaining-space"></span>
-      <button mat-icon-button [mat-menu-trigger-for]="menu">
+      <!-- <button mat-icon-button [mat-menu-trigger-for]="menu">
         <mat-icon>more_vert</mat-icon>
+      </button>-->
+      <button mat-icon-button style="margin: 4px;">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      <button mat-icon-button style="margin: 4px;">
+        <mat-icon>power_settings_new</mat-icon>
       </button>
     </mat-toolbar> <!-- Fine della toolbar -->
 
-    <mat-menu x-position="before" #menu="matMenu"> <!-- Inizio menu di destra -->
+    <!-- <mat-menu x-position="before" #menu="matMenu">
       <button mat-menu-item id="menu-item">Informazioni profilo</button>
       <button mat-menu-item id="menu-item">Logout</button>
-    </mat-menu> <!-- Fine menu di destra -->
+    </mat-menu> -->
 
     <div class="bg-map-div"> <!-- Inizio della divisione con la mappa -->
       <app-map></app-map>

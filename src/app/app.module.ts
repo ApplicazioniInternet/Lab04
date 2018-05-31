@@ -23,6 +23,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     BrowserModule,
     BrowserAnimationsModule,
     MaterialModule,
+    LeafletModule.forRoot(),
     LeafletModule,
     ReactiveFormsModule,
     MaterialModule,

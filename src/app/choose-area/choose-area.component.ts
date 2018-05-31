@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators, Form } from '@angular/forms';
 import { PositionForm } from './position-form';
 import { PositionService } from '../position.service';
+import { Position } from '../position';
 import { Input, Output, EventEmitter } from '@angular/core';
+import { MatSnackBar, MatButton } from '@angular/material';
 
 @Component({
   selector: 'app-choose-area',
@@ -11,12 +13,16 @@ import { Input, Output, EventEmitter } from '@angular/core';
 })
 export class ChooseAreaComponent implements OnInit {
   numberOfVertices = 3;
-  positions: Array<PositionForm> = new Array(this.numberOfVertices).fill(new PositionForm);
+  positions: Array<PositionForm>;
 
-  constructor(private positionService: PositionService) {
+  constructor(private positionService: PositionService, public snackBar: MatSnackBar) {
   }
 
   ngOnInit() {
+    this.positions = new Array();
+    for (let counter = 0; counter < this.numberOfVertices; counter++) {
+      this.positions.push(new PositionForm(counter + 1));
+    }
   }
 
   formatLabel(value: number | null) { // Per formattare il label dello slider
@@ -27,21 +33,24 @@ export class ChooseAreaComponent implements OnInit {
     return value;
   }
 
-  getPositions(size: number) {
-    return this.positions.slice(0, size);
+  getPositionAtIndex(i: number) {
+    return this.positions[i];
   }
 
   pushPositionForms(n: number) {
     for ( let i = 0; i < n; i++ ) {
-      this.positions.push(new PositionForm);
+      this.positions.push(new PositionForm(this.numberOfVertices + i));
     }
   }
 
   popPositionForms(n: number) {
-    this.positions.slice(0, this.numberOfVertices - n - 1 );
+    for (let i = 0; i < n; i++) {
+      this.positions.pop();
+    }
   }
 
   pitch(event: any) {
+    console.log(event.value + ' ' + this.numberOfVertices);
     if (this.numberOfVertices < event.value) {
       this.pushPositionForms(event.value - this.numberOfVertices);
     } else if (this.numberOfVertices > event.value) {
@@ -53,11 +62,41 @@ export class ChooseAreaComponent implements OnInit {
 
   submit() {
     let i = 0;
-    for (const position of this.positions) {
-      if ( i++ >= this.numberOfVertices ) {
-        return;
-      }
-      console.log(position.positionValue.latitude + ' ' + position.positionValue.longitude);
+    this.positions.forEach(element => {
+      console.log('Position #' + i++ + ' ' + element.positionValue.latitude + ' ' + element.positionValue.longitude);
+    });
+
+    if (this.inputVerticesOk() !== true) {
+      this.openSnackBar('Devi inserire almeno 3 vertici', 'OK');
+    } else {
+      // Salviamo
     }
+  }
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action, {
+      duration: 2000,
+    });
+  }
+
+  inputVerticesOk() {
+    this.positions.forEach(element => {
+      if (this.isValidVertex(element.positionValue) !== true) {
+        return false;
+      }
+    });
+    return false;
+  }
+
+  isValidVertex(position: Position) {
+    if (position == null) {
+      return false;
+    }
+
+    this.positions.forEach(element => {
+      if (element.sameCoordinates(position)) {
+        return false;
+      }
+    });
   }
 }

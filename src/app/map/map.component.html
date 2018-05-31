@@ -1,8 +1,13 @@
 <mat-card>
   <div 
     id="map-id" 
-    style="height: 300px;" 
-    leaflet [leafletOptions]="options" 
-    [leafletLayersControl]="layersControl">
+    leaflet
+    style="height: 300px;"
+    (leafletMapReady)="onMapReady($event)"
+    [leafletOptions]="options"
+  >
+    <div *ngFor="let marker of markers"
+         [leafletLayer]="marker">
+    </div>
   </div>
 </mat-card>

@@ -85,7 +85,7 @@ export class ChooseAreaComponent implements OnInit {
         return false;
       }
     });
-    return false;
+    return true;
   }
 
   isValidVertex(position: Position) {

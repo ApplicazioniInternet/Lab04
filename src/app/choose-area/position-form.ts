@@ -25,9 +25,11 @@ export class PositionForm {
                                                         Validators.pattern('[0-9]+[.]?[0-9]*')]);
     }
 
-    updateView(): void {
-        this.latitudeFormControl.setValue(this.positionValue.latitude);
-        this.longitudeFormControl.setValue(this.positionValue.longitude);
+    updateView(latitude: number, longitude: number): void {
+        this.positionValue.latitude = latitude;
+        this.positionValue.longitude = longitude;
+        this.latitudeFormControl.setValue(latitude);
+        this.longitudeFormControl.setValue(longitude);
     }
     getErrorMessageLatitude(): String {
         return this.latitudeFormControl.hasError('required') ? 'Devi inserire un valore' :

@@ -9,6 +9,7 @@ import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { MapComponent } from './map/map.component';
 import { ChooseAreaComponent } from './choose-area/choose-area.component';
 import { PositionsBoughtComponent } from './positions-bought/positions-bought.component';
+import { DialogOverviewComponent } from './choose-area/choose-area.component';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -18,6 +19,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MapComponent,
     ChooseAreaComponent,
     PositionsBoughtComponent,
+    DialogOverviewComponent,
   ],
   imports: [
     BrowserModule,
@@ -29,6 +31,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MaterialModule,
   ],
   providers: [],
+  entryComponents: [DialogOverviewComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

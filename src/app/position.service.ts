@@ -10,6 +10,8 @@ export class PositionService {
   positionsBought: Position[] = [];
   polygon: Position[];
   @Output() addedPosition: EventEmitter<Position> = new EventEmitter();
+  @Output() removedPosition: EventEmitter<Position> = new EventEmitter();
+  @Output() clearAllPositions: EventEmitter<void> = new EventEmitter();
   newPosition: Position;
 
   constructor() { }
@@ -22,18 +24,22 @@ export class PositionService {
     return of(this.positionsBought);
   }
 
-  notifyAddition(position: Position) {
+  notifyAddition(position: Position): void {
     this.newPosition = position;
     this.addedPosition.emit(this.newPosition);
   }
 
+  notifyRemoveAllPosition(): void {
+    this.clearAllPositions.emit();
+  }
+
+  notifyRemotion(position: Position): void {
+    this.removedPosition.emit(position);
+  }
+
   buyPositionsInArea(polygon: Position[]) {
-    console.log('Compro posizioni');
     this.polygon = polygon;
     this.positionsBought = this.getPositionsInPolygon(polygon);
-    this.positionsBought.forEach(element => {
-      console.log(element.latitude + ' ' + element.longitude);
-    });
   }
 
   getPolygon(): Observable<Position[]> {
@@ -53,7 +59,6 @@ export class PositionService {
             && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
         if (intersect) { inside = !inside; }
     }
-    console.log('(' + x + ', ' + y + ')' + ' --- ' + inside);
     return inside;
   }
 
@@ -76,8 +81,6 @@ export class PositionService {
         positionList.push(pos);
       }
     }
-
-    console.log(positionList);
     return positionList;
   }
 }

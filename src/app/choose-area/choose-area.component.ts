@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Inject, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormControl, Validators, Form } from '@angular/forms';
-import { MatSnackBar, MatButton } from '@angular/material';
+import { MatSnackBar, MatButton, MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatSlider } from '@angular/material';
 import { PositionForm } from './position-form';
 import { PositionService } from '../position.service';
 import { Position } from '../position';
@@ -11,32 +11,27 @@ import { Position } from '../position';
   styleUrls: ['./choose-area.component.css']
 })
 export class ChooseAreaComponent implements OnInit {
-  @ViewChild('inputLatitude') lat;
-  @ViewChild('inputLongitude') lng;
-
   numberOfVertices = 3;
   positions: Array<PositionForm>;
   polygon: Array<Position> = [];
 
-  constructor(private positionService: PositionService, public snackBar: MatSnackBar) {
-  }
+  constructor(private positionService: PositionService, public snackBar: MatSnackBar, public dialog: MatDialog) { }
 
   ngOnInit() {
-    this.positions = new Array();
-    for (let counter = 0; counter < this.numberOfVertices; counter++) {
-      const newPositionForm = new PositionForm(counter);
-      this.positions.push(newPositionForm);
-    }
+    this.initPositionForm();
 
+    // Metto un listener per sapere se dall'altra parte è stata aggiunta una posizione
     this.positionService.addedPosition.subscribe(position => {
-      console.log(position);
       let added = false;
+      let index = 0;
+
       this.positions.forEach(element => {
+        if (index++ === this.numberOfVertices - 1 && !added && index < 10) {
+          this.pushPositionForms(1);
+        }
+
         if (element.isEmpty() && !added) {
-          element.positionValue.latitude = position.latitude;
-          element.positionValue.longitude = position.longitude;
-          console.log('Form id: ' + element.id.toString());
-          element.updateView();
+          element.updateView(position.latitude, position.longitude);
           document.getElementById(element.id.toString() + '-latitude').focus();
           document.getElementById(element.id.toString() + '-longitude').focus();
           document.getElementById(element.id.toString() + '-longitude').blur();
@@ -44,9 +39,44 @@ export class ChooseAreaComponent implements OnInit {
         }
       });
     });
+
+    // Metto un listener per sapere se dall'altra parte sono state tolte tutte le posizioni
+    this.positionService.clearAllPositions.subscribe( () => {
+      this.initPositionForm();
+    });
+
+    // Metto un listener per sapere se dall'altra parte è stata tolta una sola posizione
+    this.positionService.removedPosition.subscribe(position => {
+      this.positions.forEach(element => {
+        if (element.sameCoordinates(position)) {
+          element.updateView(undefined, undefined);
+          document.getElementById(element.id.toString() + '-latitude').focus();
+          document.getElementById(element.id.toString() + '-longitude').focus();
+          document.getElementById(element.id.toString() + '-longitude').blur();
+
+          const index = this.positions.indexOf(element, 0);
+          if (index > -1 && this.positions.length > 3) {
+            this.positions.splice(index, 1);
+          }
+
+          this.numberOfVertices--;
+        }
+      });
+    });
   }
 
-  formatLabel(value: number | null) { // Per formattare il label dello slider
+  // Funzione per resettare il form
+  initPositionForm(): void {
+    this.positions = new Array();
+    this.numberOfVertices = 3;
+    for (let counter = 0; counter < this.numberOfVertices; counter++) {
+      const newPositionForm = new PositionForm(counter);
+      this.positions.push(newPositionForm);
+    }
+  }
+
+  // Funzione per formattare il label dello slider
+  formatLabel(value: number | null) {
     if (!value) {
       return this.numberOfVertices;
     }
@@ -54,29 +84,39 @@ export class ChooseAreaComponent implements OnInit {
     return value;
   }
 
+  // Funzione per aggiungere 'n' form delle posizioni
   pushPositionForms(n: number) {
     for ( let i = 0; i < n; i++ ) {
       this.positions.push(new PositionForm(this.numberOfVertices + i));
     }
+
+    this.numberOfVertices += n;
   }
 
+  // Funzione per rimuovere 'n' form delle posizioni dal fondo
   popPositionForms(n: number) {
     for (let i = 0; i < n; i++) {
       this.positions.pop();
     }
+
+    this.numberOfVertices -= n;
   }
 
+  // Funzione chiamata quando si modifica il valore dello slider
   pitch(event: any) {
     if (this.numberOfVertices < event.value) {
       this.pushPositionForms(event.value - this.numberOfVertices);
     } else if (this.numberOfVertices > event.value) {
       this.popPositionForms(this.numberOfVertices - event.value);
     }
-
-    this.numberOfVertices = event.value;
   }
 
+  // Funzione chiamata quando si è cliccato il fab in basso
   submit() {
+    if (this.numberOfVertices > 3 && this.numberOfVertices !== 10) {
+      this.popPositionForms(1);
+    }
+
     if (!this.inputVerticesOk()) { // È corretto l'input
       this.openSnackBar('Devi inserire almeno 3 vertici', 'OK');
     } else if (!this.areValidVertices()) { // Sono vertici validi, ossia lo stesso vertice non è ripetuto (e disegnano una figura?)
@@ -85,22 +125,24 @@ export class ChooseAreaComponent implements OnInit {
       // Compriamo
       this.positions.forEach(element => {
         this.polygon.push(element.positionValue);
-        console.log(element.positionValue);
       });
 
-      this.positionService.buyPositionsInArea(this.polygon);
+      this.openDialog();
     }
   }
 
+  // Apri la snack bar e fai vedere un messaggio con un bottoncino di fianco
   openSnackBar(message: string, action: string) {
     this.snackBar.open(message, action, {
       duration: 2000,
     });
   }
 
+  // Funzione per controllare che l'input sia corretto
   inputVerticesOk(): boolean {
     let wrongPositions = 0;
     this.positions.forEach(element => {
+      console.log(element);
       if (element.hasWrongInput()) {
         wrongPositions++;
       }
@@ -109,6 +151,7 @@ export class ChooseAreaComponent implements OnInit {
     return wrongPositions === 0;
   }
 
+  // Funzione per controllare se un singolo vertice è valido
   areValidVertices(): boolean {
     let repetition = 0;
     this.positions.forEach(element0 => {
@@ -121,4 +164,52 @@ export class ChooseAreaComponent implements OnInit {
 
     return repetition === 0;
   }
+
+  // Funzione per aprire il dialog che ti visualizza quante posizioni ci sono nell'area
+  openDialog(): void {
+    const dialogRef = this.dialog.open(DialogOverviewComponent, {
+      height: '250px',
+      width: '250px',
+      data: { polygon: this.polygon }
+    });
+
+    // Callback per quando si chiude il dialog
+    dialogRef.afterClosed().subscribe(result => {
+      this.positionService.notifyRemoveAllPosition();
+    });
+  }
+}
+
+// Componente del dialog
+@Component({
+  selector: 'app-dialog-overview-example-dialog',
+  templateUrl: './dialog-component.html',
+  styleUrls: ['./choose-area.component.css'],
+})
+export class DialogOverviewComponent implements OnInit {
+  counter: number;
+
+  constructor(
+    public dialogRef: MatDialogRef<DialogOverviewComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private positionService: PositionService) { }
+
+  ngOnInit() {
+    this.counter = this.getNumberOfPositionsInArea();
+  }
+
+  onAnnullaClick(): void {
+    this.dialogRef.close();
+  }
+
+  onConfermaClick(): void {
+    console.log(this.data.polygon);
+    this.positionService.buyPositionsInArea(this.data.polygon);
+    this.dialogRef.close();
+  }
+
+  getNumberOfPositionsInArea(): number {
+    return this.positionService.countPositionsInPolygon(this.data.polygon);
+  }
+
 }

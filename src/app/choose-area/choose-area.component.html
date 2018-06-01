@@ -2,8 +2,12 @@
   <p>Scegli il numero di punti per disegnare un'area</p>
   <mat-slider 
     thumbLabel 
+    id="slider"
     [displayWith]="formatLabel" 
-    tickInterval="1" min="3" max="10"
+    tickInterval="1" 
+    min="3" 
+    max="10"
+    [value]="numberOfVertices"
     (input)='pitch($event)'  
   ></mat-slider>
   <ul id="no-bullet-ul">
@@ -29,7 +33,9 @@
       </li>
   </ul>
 
-  <button mat-fab (click)='submit()'>
+  <button mat-fab 
+          matTooltip="Compra posizioni dentro questa area"
+          (click)='submit()'>
     <mat-icon style="color: #FFFFFF">done</mat-icon>
   </button>
 </div>

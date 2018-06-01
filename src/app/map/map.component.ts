@@ -20,7 +20,7 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   ],
 })
 export class MapComponent implements OnInit {
-  // Coordinate di Torino [45.116177, 7.742615]
+  // Coordinate di Torino [45.116177, 7.742615] se ci interessa
 
   LAYER_OSM = tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 });
   ICON_URL_RED = '../assets/images/marker-icon-red.png';
@@ -40,6 +40,8 @@ export class MapComponent implements OnInit {
 
   ngOnInit() {
     this.positionService.getPositionsForSale().subscribe(positions => this.positions = positions);
+
+    // Marker per le posizioni degli utenti che sono sulla mappa
     this.markerIconRed = icon({
       iconSize: [25, 41],
       iconAnchor: [13, 41],
@@ -48,6 +50,7 @@ export class MapComponent implements OnInit {
       shadowUrl: this.SHADOW_URL
     });
 
+    // Marker per i punti che vado ad aggiungere io cliccando sulla mappa
     this.markerIconBlue = icon({
       iconSize: [25, 41],
       iconAnchor: [13, 41],
@@ -56,25 +59,48 @@ export class MapComponent implements OnInit {
       shadowUrl: this.SHADOW_URL
     });
 
+    // Opzioni per il setup iniziale della mappa: dove è centrata, quanto è lo zoom iniziale, il tema del background
     this.options = {
       layers: [this.LAYER_OSM],
       zoom: 10,
       center: latLng(45.116177, 7.742615)
     };
 
+    // Metto un marker per ogni posizione degli utenti presa dal database
     this.positions.forEach((element) => {
       this.markers.push(marker(latLng(element.latitude, element.longitude),
                               { icon: this.markerIconRed })
                         .bindPopup('<b>Coordinate:</b><br>LatLng(' + element.latitude + ', ' + element.longitude + ')')
                         );
     });
+
+    // Metto un listener per capire quando devo pulire tutta la mappa
+    this.positionService.clearAllPositions.subscribe( () => {
+      this.clearMap();
+    });
+
+    // Metto un listener per capire quando devo rimuovere una posizioneß
+    this.positionService.removedPosition.subscribe(position => {
+      let markerToBeRemoved;
+      this.polygon.forEach(element => {
+        if (element.getLatLng().lat === position.latitude && element.getLatLng().lng === position.longitude) {
+          markerToBeRemoved = position;
+        }
+
+        return;
+      });
+
+      this.removeMarker(markerToBeRemoved);
+    });
   }
 
+  // Funzione che mi serve per salvarmi la mappa in una variabile locale quando so che è stato tutto inizializzato
   onMapReady(map: Map): void {
     this.map = map;
     map.on('click', this.onMapClick, this);
   }
 
+  // Funzione chiamata quando c'è un click sulla mappa (click per single spot, quindi non click prolungato)
   onMapClick(e): void {
     const newPosition = new Position();
     const newMarker = marker(e.latlng, { icon: this.markerIconBlue })
@@ -85,26 +111,53 @@ export class MapComponent implements OnInit {
 
     this.positionService.notifyAddition(newPosition);
     this.polygon.push(newMarker);
-
-    console.log(this.polygon.length);
   }
 
+  // Funzione per rimuovere l'ultimo marker che è stato aggiunto
   removeLastAddedMarker(): void {
     if (this.polygon.length === 0) {
       return;
     }
-    const m = this.polygon.pop();
-    this.map.removeLayer(m);
+    const removedPosition = this.removeLastMarkerFromMap();
+    this.positionService.notifyRemotion(removedPosition); // Notifico anche tutti quelli che sono in ascolto su questi dati
   }
 
+  // Funzione per rimuovere tutti i marker della mappa
   removeAllMarkers(): void {
     if (this.polygon.length === 0) {
       return;
     }
+    this.clearMap();
+    this.positionService.notifyRemoveAllPosition(); // Notifico tutti
+  }
+
+  // Funzione per pulire la mappa
+  clearMap(): void {
     this.polygon.forEach(element => {
       this.map.removeLayer(element);
     });
 
     this.polygon = [];
+  }
+
+  // Funzione per rimuovere l'ultimo marker dalla mappa
+  removeLastMarkerFromMap(): Position {
+    const m = this.polygon.pop();
+    return this.removeMarker(m);
+  }
+
+  // Funzione per rimuovere un marker dalla mappa
+  removeMarker(m: Marker): Position {
+    if (m === undefined) {
+      return null;
+    }
+
+    this.map.removeLayer(m);
+
+    const position = new Position();
+    position.latitude = m.getLatLng().lat;
+    position.longitude = m.getLatLng().lng;
+
+    return position;
   }
 }

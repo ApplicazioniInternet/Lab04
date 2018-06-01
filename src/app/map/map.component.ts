@@ -66,8 +66,13 @@ export class MapComponent implements OnInit {
   }
 
   onMapClick(e) {
+    const newPosition = new Position();
     const newMarker = marker(e.latlng, { icon: this.markerIconBlue })
       .bindPopup('<b>Coordinate:</b><br>' + e.latlng + '');
     this.map.addLayer(newMarker);
+    newPosition.latitude = newMarker.getLatLng().lat;
+    newPosition.longitude = newMarker.getLatLng().lng;
+
+    this.positionService.notifyAddition(newPosition);
   }
 }

@@ -1,15 +1,20 @@
-import { FormControl, Validators, Form } from '@angular/forms';
+import { FormControl, Validators, Form,  } from '@angular/forms';
 import { Position } from '../position';
+import { ElementRef } from '@angular/core';
 
 export class PositionForm {
-    formId: number;
+
+    id: number;
     positionValue?: Position;
     latitudeFormControl?: FormControl;
     longitudeFormControl?: FormControl;
+    inputLatitudeField: any;
+    inputLongitudeField: any;
+
 
     constructor(id: number, latitude?: number, longitude?: number, timestamp?: number) {
-        this.formId = id;
-        this.positionValue = new Position();
+        this.id = id;
+        this.positionValue = new Position(id, undefined, undefined, undefined);
         this.latitudeFormControl = new FormControl('', [Validators.required,
                                                         Validators.min(0),
                                                         Validators.max(90),
@@ -20,6 +25,10 @@ export class PositionForm {
                                                         Validators.pattern('[0-9]+[.]?[0-9]*')]);
     }
 
+    updateView(): void {
+        this.latitudeFormControl.setValue(this.positionValue.latitude);
+        this.longitudeFormControl.setValue(this.positionValue.longitude);
+    }
     getErrorMessageLatitude(): String {
         return this.latitudeFormControl.hasError('required') ? 'Devi inserire un valore' :
             this.latitudeFormControl.hasError('max') ? 'Valore massimo latitudine = 90' :
@@ -48,7 +57,7 @@ export class PositionForm {
         return this.positionValue.latitude === position.latitude && this.positionValue.longitude === position.longitude;
     }
 
-    hasWrongInput() {
+    hasWrongInput(): boolean {
         return this.latitudeFormControl.hasError('required') ||
                 this.latitudeFormControl.hasError('max') ||
                 this.latitudeFormControl.hasError('min') ||
@@ -57,5 +66,9 @@ export class PositionForm {
                 this.longitudeFormControl.hasError('max') ||
                 this.longitudeFormControl.hasError('min') ||
                 this.longitudeFormControl.hasError('pattern');
+    }
+
+    isEmpty(): boolean {
+        return this.positionValue.latitude === undefined && this.positionValue.longitude === undefined;
     }
 }

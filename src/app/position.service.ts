@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Output, EventEmitter } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { POSITIONS } from './mock-positions';
 import { Position } from './position';
@@ -9,6 +9,8 @@ import { Position } from './position';
 export class PositionService {
   positionsBought: Position[] = [];
   polygon: Position[];
+  @Output() addedPosition: EventEmitter<Position> = new EventEmitter();
+  newPosition: Position;
 
   constructor() { }
 
@@ -18,6 +20,11 @@ export class PositionService {
 
   getPositionsBought(): Observable<Position[]> {
     return of(this.positionsBought);
+  }
+
+  notifyAddition(position: Position) {
+    this.newPosition = position;
+    this.addedPosition.emit(this.newPosition);
   }
 
   buyPositionsInArea(polygon: Position[]) {

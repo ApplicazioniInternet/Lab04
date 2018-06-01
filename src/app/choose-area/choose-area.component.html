@@ -12,7 +12,7 @@
           <div class="container-item"><!-- Inizio container della singola casella di input -->
             <mat-form-field appearance="outline">
               <mat-label>Latitudine vertice #{{i + 1}}</mat-label>
-              <input matInput [formControl]="position.latitudeFormControl" (input)="position.positionValue.latitude = $event.target.value" placeholder="Latitudine">
+              <input id="{{i}}-latitude" matInput [formControl]="position.latitudeFormControl" placeholder="Latitudine">
               <mat-icon matSuffix>place</mat-icon>
               <mat-error *ngIf="position.latitudeFormControl.invalid">{{position.getErrorMessageLatitude()}}</mat-error>
             </mat-form-field>
@@ -20,7 +20,7 @@
           <div class="container-item"> <!-- Inizio container della singola casella di input -->
             <mat-form-field appearance="outline">
               <mat-label>Longitudine vertice #{{i + 1}}</mat-label>
-              <input matInput [formControl]="position.longitudeFormControl" (input)="position.positionValue.longitude = $event.target.value" placeholder="Longitudine">
+              <input id="{{i}}-longitude" matInput [formControl]="position.longitudeFormControl" placeholder="Longitudine">
               <mat-icon matSuffix>place</mat-icon>
               <mat-error *ngIf="position.longitudeFormControl.invalid">{{position.getErrorMessageLongitude()}}</mat-error>
             </mat-form-field>

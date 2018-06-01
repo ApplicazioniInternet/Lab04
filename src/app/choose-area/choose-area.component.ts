@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormControl, Validators, Form } from '@angular/forms';
+import { MatSnackBar, MatButton } from '@angular/material';
 import { PositionForm } from './position-form';
 import { PositionService } from '../position.service';
 import { Position } from '../position';
-import { Input, Output, EventEmitter } from '@angular/core';
-import { MatSnackBar, MatButton } from '@angular/material';
 
 @Component({
   selector: 'app-choose-area',
@@ -12,6 +11,9 @@ import { MatSnackBar, MatButton } from '@angular/material';
   styleUrls: ['./choose-area.component.css']
 })
 export class ChooseAreaComponent implements OnInit {
+  @ViewChild('inputLatitude') lat;
+  @ViewChild('inputLongitude') lng;
+
   numberOfVertices = 3;
   positions: Array<PositionForm>;
   polygon: Array<Position> = [];
@@ -22,8 +24,26 @@ export class ChooseAreaComponent implements OnInit {
   ngOnInit() {
     this.positions = new Array();
     for (let counter = 0; counter < this.numberOfVertices; counter++) {
-      this.positions.push(new PositionForm(counter + 1));
+      const newPositionForm = new PositionForm(counter);
+      this.positions.push(newPositionForm);
     }
+
+    this.positionService.addedPosition.subscribe(position => {
+      console.log(position);
+      let added = false;
+      this.positions.forEach(element => {
+        if (element.isEmpty() && !added) {
+          element.positionValue.latitude = position.latitude;
+          element.positionValue.longitude = position.longitude;
+          console.log('Form id: ' + element.id.toString());
+          element.updateView();
+          document.getElementById(element.id.toString() + '-latitude').focus();
+          document.getElementById(element.id.toString() + '-longitude').focus();
+          document.getElementById(element.id.toString() + '-longitude').blur();
+          added = true;
+        }
+      });
+    });
   }
 
   formatLabel(value: number | null) { // Per formattare il label dello slider

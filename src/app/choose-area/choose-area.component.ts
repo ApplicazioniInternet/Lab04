@@ -43,7 +43,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     // Metto un listener per sapere se dall'altra parte sono state tolte tutte le posizioni
     this.positionService.clearAllPositions.subscribe( () => {
       this.positionService.clearSavedInputPositions();
-      this.initPositionForm();
+      this.resetPositionForm();
     });
 
     // Metto un listener per sapere se dall'altra parte è stata tolta una sola posizione
@@ -57,10 +57,8 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
           const index = this.positions.indexOf(element, 0);
           if (index > -1 && this.positions.length > 3) {
-            this.positions.splice(index, 1);
+            this.popPositionForms(1);
           }
-
-          this.numberOfVertices--;
         }
       });
     });
@@ -71,21 +69,27 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     this.positionService.save(this.positions);
   }
 
-  // Funzione per resettare il form
+  // Funzione per inizializzare il form
   initPositionForm(): void {
-    this.positions = this.positionService.inputPositionsFromForm;
-
-    if (this.positions.length !== 0) {
+    this.positions = new Array();
+    if (this.positionService.savedFormInstanceState()) { // Avevo salvato qualcosa prima
+      this.positions = this.positionService.inputPositionsFromForm;
+      this.numberOfVertices = Math.max(this.positions.length, 3);
       this.positionService.clearSavedInputPositions();
-      return;
+    } else {
+      this.resetPositionForm();
     }
+  }
+
+  // Funzione per resettare il form
+  resetPositionForm(): void {
+    this.positions = new Array();
     this.numberOfVertices = 3;
     for (let counter = 0; counter < this.numberOfVertices; counter++) {
       const newPositionForm = new PositionForm(counter);
       this.positions.push(newPositionForm);
     }
   }
-
   // Funzione per formattare il label dello slider
   formatLabel(value: number | null) {
     if (!value) {

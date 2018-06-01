@@ -49,6 +49,12 @@ mat-dialog-container{
   margin: 20px;
 }
 
+.remove-position {
+  position: relative;
+  top: 16px;
+  right: 25px;
+}
+
 mat-icon {
   color: #FFFFFF
 }

@@ -11,6 +11,8 @@ import { Position } from '../position';
   styleUrls: ['./choose-area.component.css']
 })
 export class ChooseAreaComponent implements OnInit, OnDestroy {
+  minNnumberOfVertices = 3;
+  maxNumberOfVertices = 10;
   numberOfVertices = 3;
   positions: Array<PositionForm> = [];
   polygon: Array<Position> = [];
@@ -56,7 +58,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
           document.getElementById(element.id.toString() + '-longitude').blur();
 
           const index = this.positions.indexOf(element, 0);
-          if (index > -1 && this.positions.length > 3) {
+          if (index > -1 && this.positions.length > this.minNnumberOfVertices) {
             this.positions.splice(index, 1);
           }
 
@@ -79,7 +81,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
       this.positionService.clearSavedInputPositions();
       return;
     }
-    this.numberOfVertices = 3;
+    this.numberOfVertices = this.minNnumberOfVertices;
     for (let counter = 0; counter < this.numberOfVertices; counter++) {
       const newPositionForm = new PositionForm(counter);
       this.positions.push(newPositionForm);
@@ -106,8 +108,13 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
   // Funzione per rimuovere 'n' form delle posizioni dal fondo
   popPositionForms(n: number) {
+    let removedPosition;
     for (let i = 0; i < n; i++) {
-      this.positions.pop();
+      removedPosition = this.positions.pop();
+      console.log(removedPosition);
+      if (removedPosition.positionValue.latitude && removedPosition.positionValue.longitude) {
+          this.positionService.notifyFormRemotion(removedPosition);
+      }
     }
 
     this.numberOfVertices -= n;
@@ -124,21 +131,28 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
   // Aggiunge un form
   add() {
-    if (this.numberOfVertices < 10) {
+    if (this.numberOfVertices < this.maxNumberOfVertices) {
       this.pushPositionForms(1);
     }
   }
 
   // Toglie un form
   remove() {
-    if (this.numberOfVertices > 3) {
+    if (this.numberOfVertices > this.minNnumberOfVertices) {
       this.popPositionForms(1);
     }
   }
 
+  // removePosition() {
+  //   if (this.numberOfVertices > this.minNnumberOfVertices) {
+  //     this.positions.
+  //   }
+  // }
+
   // Funzione chiamata quando si è cliccato il fab in basso
   submit() {
-    if (this.numberOfVertices > 3 && this.numberOfVertices !== 10) {
+    if (this.numberOfVertices > this.minNnumberOfVertices
+       && this.numberOfVertices !== this.maxNumberOfVertices) {
       this.popPositionForms(1);
     }
 

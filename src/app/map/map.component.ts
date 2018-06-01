@@ -3,7 +3,9 @@ import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { MatSnackBar, MatButton, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/material';
 import { PositionService } from '../position.service';
 import { Position } from '../position';
-import { icon, latLng, marker, Marker, tileLayer, Map, LayerGroup } from 'leaflet';
+import {icon, latLng, marker, Marker, tileLayer, Map, LayerGroup} from 'leaflet';
+import { PositionForm } from '../choose-area/position-form';
+import { MapMarker } from './map-marker';
 
 export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -30,15 +32,17 @@ export class MapComponent implements OnInit {
   options;
   vertices: LayerGroup;
   markers: Marker[] = [];
-  polygon: Marker[] = [];
+  polygon: MapMarker[] = [];
   positions: Position[];
   markerIconRed;
   markerIconBlue;
   map: Map;
+  index: number;
 
   constructor(private positionService: PositionService, public snackBar: MatSnackBar) { }
 
   ngOnInit() {
+    this.index = 0;
     this.positionService.getPositionsForSale().subscribe(positions => this.positions = positions);
 
     // Marker per le posizioni degli utenti che sono sulla mappa
@@ -74,24 +78,36 @@ export class MapComponent implements OnInit {
                         );
     });
 
-    // Metto un listener per capire quando devo pulire tutta la mappa
-    this.positionService.clearAllPositions.subscribe( () => {
-      this.clearMap();
-    });
+    // // Metto un listener per capire quando devo pulire tutta la mappa
+    // this.positionService.clearAllPositions.subscribe( () => {
+    //   this.clearMap();
+    // });
 
-    // Metto un listener per capire quando devo rimuovere una posizioneß
-    this.positionService.removedPosition.subscribe(position => {
-      let markerToBeRemoved;
-      this.polygon.forEach(element => {
-        if (element.getLatLng().lat === position.latitude && element.getLatLng().lng === position.longitude) {
-          markerToBeRemoved = position;
-        }
+    // // Metto un listener per capire quando devo rimuovere una posizioneß
+    // this.positionService.removedPosition.subscribe(position => {
+    //   let markerToBeRemoved;
+    //   this.polygon.forEach(element => {
+    //     if (element.getLatLng().lat === position.latitude && element.getLatLng().lng === position.longitude) {
+    //       markerToBeRemoved = position;
+    //         console.log(position);
+    //     }
+    //
+    //     return;
+    //   });
+    //
+    //   this.removeMarker(markerToBeRemoved);
+    // });
 
-        return;
+      // Metto un listener per sapere se dall'altra parte è stata tolta una sola posizione
+      this.positionService.removedPositionForm.subscribe(position => {
+          this.positions.forEach(element => {
+              console.log(position);
+              if (element.id === position.id) {
+                  this.removeMarkerByPosition(position.positionValue);
+              }
+          });
       });
 
-      this.removeMarker(markerToBeRemoved);
-    });
   }
 
   // Funzione che mi serve per salvarmi la mappa in una variabile locale quando so che è stato tutto inizializzato
@@ -102,9 +118,10 @@ export class MapComponent implements OnInit {
 
   // Funzione chiamata quando c'è un click sulla mappa (click per single spot, quindi non click prolungato)
   onMapClick(e): void {
-    const newPosition = new Position();
-    const newMarker = marker(e.latlng, { icon: this.markerIconBlue })
+    const newPosition = new Position(this.index++);
+    const newMarker = new MapMarker(newPosition.id, e.latlng, { icon: this.markerIconBlue })
       .bindPopup('<b>Coordinate:</b><br>' + e.latlng + '');
+    console.log(newMarker);
     this.map.addLayer(newMarker);
     newPosition.latitude = newMarker.getLatLng().lat;
     newPosition.longitude = newMarker.getLatLng().lng;
@@ -147,17 +164,27 @@ export class MapComponent implements OnInit {
   }
 
   // Funzione per rimuovere un marker dalla mappa
-  removeMarker(m: Marker): Position {
+  removeMarker(m: MapMarker): Position {
     if (m === undefined) {
       return null;
     }
 
     this.map.removeLayer(m);
 
-    const position = new Position();
+    const position = new Position(0);
     position.latitude = m.getLatLng().lat;
     position.longitude = m.getLatLng().lng;
 
     return position;
+  }
+
+  removeMarkerByPosition(positionForm: PositionForm) {
+    this.polygon.forEach(element => {
+        console.log(element);
+      if (element.id === positionForm.id) {
+          this.map.removeLayer(element);
+      }
+    });
+    return;
   }
 }

@@ -110,7 +110,7 @@ export class ChooseAreaComponent implements OnInit {
       this.popPositionForms(this.numberOfVertices - event.value);
     }
   }
-  
+
   // Aggiunge un form
   add() {
     if (this.numberOfVertices < 10) {

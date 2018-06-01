@@ -26,17 +26,17 @@
           <div class="container-item"><!-- Inizio container della singola casella di input -->
             <mat-form-field appearance="outline">
               <mat-label>Latitudine vertice #{{i + 1}}</mat-label>
-              <input id="{{i}}-latitude" matInput [formControl]="position.latitudeFormControl" placeholder="Latitudine">
+              <input id="{{i}}-latitude" matInput [formControl]="position.group.get('latitude')" placeholder="Latitudine">
               <mat-icon matSuffix>place</mat-icon>
-              <mat-error *ngIf="position.latitudeFormControl.invalid">{{position.getErrorMessageLatitude()}}</mat-error>
+              <mat-error *ngIf="position.group.get('latitude').invalid">{{position.getErrorMessageLatitude()}}</mat-error>
             </mat-form-field>
           </div> <!-- Fine container della singola casella di input -->
           <div class="container-item"> <!-- Inizio container della singola casella di input -->
             <mat-form-field appearance="outline">
               <mat-label>Longitudine vertice #{{i + 1}}</mat-label>
-              <input id="{{i}}-longitude" matInput [formControl]="position.longitudeFormControl" placeholder="Longitudine">
+              <input id="{{i}}-longitude" matInput [formControl]="position.group.get('longitude')" placeholder="Longitudine">
               <mat-icon matSuffix>place</mat-icon>
-              <mat-error *ngIf="position.longitudeFormControl.invalid">{{position.getErrorMessageLongitude()}}</mat-error>
+              <mat-error *ngIf="position.group.get('longitude').invalid">{{position.getErrorMessageLongitude()}}</mat-error>
             </mat-form-field>
           </div> <!-- Fine container della singola casella di input -->
         </div> <!-- Fine del container della riga -->

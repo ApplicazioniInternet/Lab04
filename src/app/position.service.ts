@@ -12,7 +12,9 @@ export class PositionService {
   polygon: Position[];
   inputPositionsFromForm: Array<PositionForm> = new Array();
   @Output() addedPosition: EventEmitter<Position> = new EventEmitter();
+  @Output() addedPositionForm: EventEmitter<PositionForm> = new EventEmitter();
   @Output() removedPosition: EventEmitter<Position> = new EventEmitter();
+  @Output() removedPositionForm: EventEmitter<PositionForm> = new EventEmitter();
   @Output() clearAllPositions: EventEmitter<void> = new EventEmitter();
   newPosition: Position;
 
@@ -38,6 +40,10 @@ export class PositionService {
   notifyRemotion(position: Position): void {
     this.inputPositionsFromForm.pop();
     this.removedPosition.emit(position);
+  }
+
+  notifyFormRemotion(positionForm: PositionForm): void {
+    this.removedPositionForm.emit(positionForm);
   }
 
   buyPositionsInArea(polygon: Position[]) {

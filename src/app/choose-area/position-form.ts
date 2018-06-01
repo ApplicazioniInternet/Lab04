@@ -15,13 +15,13 @@ export class PositionForm {
 
         // Creo i validati dell'input del form
         const latitudeFormControl = new FormControl('', [Validators.required,
-                                                        Validators.min(0),
+                                                        Validators.min(-90),
                                                         Validators.max(90),
-                                                        Validators.pattern('[0-9]+[.]?[0-9]*')]);
+                                                        Validators.pattern('\-?[0-9]+[.]?[0-9]*')]);
         const longitudeFormControl = new FormControl('', [Validators.required,
-                                                        Validators.min(0),
-                                                        Validators.max(360),
-                                                        Validators.pattern('[0-9]+[.]?[0-9]*')]);
+                                                        Validators.min(-180),
+                                                        Validators.max(180),
+                                                        Validators.pattern('\-?[0-9]+[.]?[0-9]*')]);
 
         // Metto tutti i validatori in un unico gruppo
         this.group = new FormGroup({

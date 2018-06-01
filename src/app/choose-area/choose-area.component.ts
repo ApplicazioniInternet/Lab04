@@ -42,6 +42,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
     // Metto un listener per sapere se dall'altra parte sono state tolte tutte le posizioni
     this.positionService.clearAllPositions.subscribe( () => {
+      this.positionService.clearSavedInputPositions();
       this.initPositionForm();
     });
 
@@ -75,6 +76,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     this.positions = this.positionService.inputPositionsFromForm;
 
     if (this.positions.length !== 0) {
+      this.positionService.clearSavedInputPositions();
       return;
     }
     this.numberOfVertices = 3;

@@ -10,7 +10,7 @@ import { PositionForm } from './choose-area/position-form';
 export class PositionService {
   positionsBought: Position[] = [];
   polygon: Position[];
-  inputPositionsFromForm: PositionForm[] = [];
+  inputPositionsFromForm: Array<PositionForm> = new Array();
   @Output() addedPosition: EventEmitter<Position> = new EventEmitter();
   @Output() removedPosition: EventEmitter<Position> = new EventEmitter();
   @Output() clearAllPositions: EventEmitter<void> = new EventEmitter();
@@ -93,5 +93,9 @@ export class PositionService {
 
   save(positions: Array<PositionForm>): void {
     this.inputPositionsFromForm = positions;
+  }
+
+  clearSavedInputPositions(): void {
+    this.inputPositionsFromForm = new Array();
   }
 }

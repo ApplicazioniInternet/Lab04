@@ -110,6 +110,20 @@ export class ChooseAreaComponent implements OnInit {
       this.popPositionForms(this.numberOfVertices - event.value);
     }
   }
+  
+  // Aggiunge un form
+  add() {
+    if (this.numberOfVertices < 10) {
+      this.pushPositionForms(1);
+    }
+  }
+
+  // Toglie un form
+  remove() {
+    if (this.numberOfVertices > 3) {
+      this.popPositionForms(1);
+    }
+  }
 
   // Funzione chiamata quando si è cliccato il fab in basso
   submit() {

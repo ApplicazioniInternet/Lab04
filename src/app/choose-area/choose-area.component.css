@@ -44,3 +44,11 @@ mat-dialog-container{
   width: 100%;
   height: 100%;
 }
+
+.add-remove {
+  margin: 20px;
+}
+
+mat-icon {
+  color: #FFFFFF
+}

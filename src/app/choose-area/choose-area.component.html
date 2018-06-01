@@ -1,5 +1,10 @@
 <div class="container">
   <p>Scegli il numero di punti per disegnare un'area</p>
+  
+  <button mat-mini-fab class="add-remove" (click)='remove()'>
+    <mat-icon>remove</mat-icon>
+  </button>
+  
   <mat-slider 
     thumbLabel 
     id="slider"
@@ -8,8 +13,13 @@
     min="3" 
     max="10"
     [value]="numberOfVertices"
-    (input)='pitch($event)'  
-  ></mat-slider>
+    (input)='pitch($event)'
+    ></mat-slider>
+    
+  <button mat-mini-fab class="add-remove" (click)='add()'>
+      <mat-icon>add</mat-icon>
+    </button>
+
   <ul id="no-bullet-ul">
       <li *ngFor="let position of positions; let i = index;">
         <div class="container-row"> <!-- Inizio del container della riga -->
@@ -36,6 +46,6 @@
   <button mat-fab 
           matTooltip="Compra posizioni dentro questa area"
           (click)='submit()'>
-    <mat-icon style="color: #FFFFFF">done</mat-icon>
+    <mat-icon>done</mat-icon>
   </button>
 </div>

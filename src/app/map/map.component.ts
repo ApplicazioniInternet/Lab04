@@ -16,7 +16,7 @@ export class MapComponent implements OnInit {
   LAYER_OSM = tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 });
   ICON_URL_RED = '../assets/images/marker-icon-red.png';
   ICON_URL_BLUE = '../assets/images/marker-icon-blue.png';
-  SHADOW_URL = '../assets/marker-shadow.png';
+  SHADOW_URL = '../assets/images/marker-shadow.png';
 
   options;
   vertices: LayerGroup;

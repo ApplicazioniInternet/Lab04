@@ -11,7 +11,7 @@ import { Position } from '../position';
   styleUrls: ['./choose-area.component.css']
 })
 export class ChooseAreaComponent implements OnInit, OnDestroy {
-  minNnumberOfVertices = 3;
+  minNumberOfVertices = 3;
   maxNumberOfVertices = 10;
   numberOfVertices = 3;
   positions: Array<PositionForm> = [];
@@ -45,7 +45,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     // Metto un listener per sapere se dall'altra parte sono state tolte tutte le posizioni
     this.positionService.clearAllPositions.subscribe( () => {
       this.positionService.clearSavedInputPositions();
-      this.initPositionForm();
+      this.resetPositionForm();
     });
 
     // Metto un listener per sapere se dall'altra parte è stata tolta una sola posizione
@@ -58,11 +58,9 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
           document.getElementById(element.id.toString() + '-longitude').blur();
 
           const index = this.positions.indexOf(element, 0);
-          if (index > -1 && this.positions.length > this.minNnumberOfVertices) {
-            this.positions.splice(index, 1);
+          if (index > -1 && this.positions.length > 3) {
+            this.popPositionForms(1);
           }
-
-          this.numberOfVertices--;
         }
       });
     });
@@ -73,21 +71,29 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     this.positionService.save(this.positions);
   }
 
-  // Funzione per resettare il form
+  // Funzione per inizializzare il form
   initPositionForm(): void {
-    this.positions = this.positionService.inputPositionsFromForm;
-
-    if (this.positions.length !== 0) {
-      this.positionService.clearSavedInputPositions();
-      return;
+    this.positions = new Array();
+    if (this.positionService.savedFormInstanceState()) { // Avevo salvato qualcosa prima
+      for ( let i = 0; i < Math.max(this.positionService.inputPositionsFromForm.length, 3); i++ ) {
+        this.positions.push(this.positionService.inputPositionsFromForm[i]);
+        this.positionService.inputPositionsFromForm.pop();
+      }
+      this.numberOfVertices = Math.max(this.positions.length, 3);
+    } else {
+      this.resetPositionForm();
     }
-    this.numberOfVertices = this.minNnumberOfVertices;
+  }
+
+  // Funzione per resettare il form
+  resetPositionForm(): void {
+    this.positions = new Array();
+    this.numberOfVertices = this.minNumberOfVertices;
     for (let counter = 0; counter < this.numberOfVertices; counter++) {
       const newPositionForm = new PositionForm(counter);
       this.positions.push(newPositionForm);
     }
   }
-
   // Funzione per formattare il label dello slider
   formatLabel(value: number | null) {
     if (!value) {
@@ -113,7 +119,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
       removedPosition = this.positions.pop();
       console.log(removedPosition);
       if (removedPosition.positionValue.latitude && removedPosition.positionValue.longitude) {
-          this.positionService.notifyFormRemotion(removedPosition);
+      this.positions.pop();
       }
     }
 
@@ -138,7 +144,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
   // Toglie un form
   remove() {
-    if (this.numberOfVertices > this.minNnumberOfVertices) {
+    if (this.numberOfVertices > this.minNumberOfVertices) {
       this.popPositionForms(1);
     }
   }
@@ -151,7 +157,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
   // Funzione chiamata quando si è cliccato il fab in basso
   submit() {
-    if (this.numberOfVertices > this.minNnumberOfVertices
+    if (this.numberOfVertices > this.minNumberOfVertices
        && this.numberOfVertices !== this.maxNumberOfVertices) {
       this.popPositionForms(1);
     }

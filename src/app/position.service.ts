@@ -38,6 +38,7 @@ export class PositionService {
   }
 
   notifyRemotion(position: Position): void {
+    this.inputPositionsFromForm.pop();
     this.removedPosition.emit(position);
   }
 
@@ -103,5 +104,9 @@ export class PositionService {
 
   clearSavedInputPositions(): void {
     this.inputPositionsFromForm = new Array();
+  }
+
+  savedFormInstanceState(): boolean {
+    return this.inputPositionsFromForm.length !== 0;
   }
 }

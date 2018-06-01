@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Inject, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Inject, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormControl, Validators, Form } from '@angular/forms';
 import { MatSnackBar, MatButton, MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatSlider } from '@angular/material';
 import { PositionForm } from './position-form';
@@ -10,9 +10,9 @@ import { Position } from '../position';
   templateUrl: './choose-area.component.html',
   styleUrls: ['./choose-area.component.css']
 })
-export class ChooseAreaComponent implements OnInit {
+export class ChooseAreaComponent implements OnInit, OnDestroy {
   numberOfVertices = 3;
-  positions: Array<PositionForm>;
+  positions: Array<PositionForm> = [];
   polygon: Array<Position> = [];
 
   constructor(private positionService: PositionService, public snackBar: MatSnackBar, public dialog: MatDialog) { }
@@ -65,9 +65,18 @@ export class ChooseAreaComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    // Salvo quello che ho inserito
+    this.positionService.save(this.positions);
+  }
+
   // Funzione per resettare il form
   initPositionForm(): void {
-    this.positions = new Array();
+    this.positions = this.positionService.inputPositionsFromForm;
+
+    if (this.positions.length !== 0) {
+      return;
+    }
     this.numberOfVertices = 3;
     for (let counter = 0; counter < this.numberOfVertices; counter++) {
       const newPositionForm = new PositionForm(counter);

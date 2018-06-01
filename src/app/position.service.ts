@@ -2,6 +2,7 @@ import { Injectable, Output, EventEmitter } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { POSITIONS } from './mock-positions';
 import { Position } from './position';
+import { PositionForm } from './choose-area/position-form';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +10,7 @@ import { Position } from './position';
 export class PositionService {
   positionsBought: Position[] = [];
   polygon: Position[];
+  inputPositionsFromForm: PositionForm[] = [];
   @Output() addedPosition: EventEmitter<Position> = new EventEmitter();
   @Output() removedPosition: EventEmitter<Position> = new EventEmitter();
   @Output() clearAllPositions: EventEmitter<void> = new EventEmitter();
@@ -87,5 +89,9 @@ export class PositionService {
       }
     }
     return positionList;
+  }
+
+  save(positions: Array<PositionForm>): void {
+    this.inputPositionsFromForm = positions;
   }
 }

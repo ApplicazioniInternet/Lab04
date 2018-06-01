@@ -34,8 +34,8 @@ export class PositionService {
   }
 
   private isPositionsInPolygon(point: Position, polygon: Position[]): Boolean {
-    const x = point.longitude;
-    const y = point.latitude;
+    const x = point.latitude;
+    const y = point.longitude;
 
     let inside = false;
     for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
@@ -46,6 +46,7 @@ export class PositionService {
             && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
         if (intersect) { inside = !inside; }
     }
+    console.log('(' + x + ', ' + y + ')' + ' --- ' + inside);
     return inside;
   }
 
@@ -68,6 +69,8 @@ export class PositionService {
         positionList.push(pos);
       }
     }
+
+    console.log(positionList);
     return positionList;
   }
 }

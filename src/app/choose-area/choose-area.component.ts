@@ -24,19 +24,6 @@ export class ChooseAreaComponent implements OnInit {
     for (let counter = 0; counter < this.numberOfVertices; counter++) {
       this.positions.push(new PositionForm(counter + 1));
     }
-
-    this.positionService.getPolygon().subscribe(polygon => {
-      this.polygon = polygon;
-      let i = 0;
-
-      if (this.polygon === undefined) {
-        return;
-      }
-      this.polygon.forEach(element => {
-        this.positions[i].positionValue = element;
-        i++;
-      });
-    });
   }
 
   formatLabel(value: number | null) { // Per formattare il label dello slider
@@ -78,8 +65,8 @@ export class ChooseAreaComponent implements OnInit {
       // Compriamo
       this.positions.forEach(element => {
         this.polygon.push(element.positionValue);
+        console.log(element.positionValue);
       });
-      this.polygon.push(this.polygon[0]);
 
       this.positionService.buyPositionsInArea(this.polygon);
     }

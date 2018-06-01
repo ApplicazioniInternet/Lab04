@@ -14,25 +14,35 @@ export class MapComponent implements OnInit {
   // Coordinate di Torino [45.116177, 7.742615]
 
   LAYER_OSM = tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 });
-  ICON_URL = '../assets/images/marker-icon.png';
+  ICON_URL_RED = '../assets/images/marker-icon-red.png';
+  ICON_URL_BLUE = '../assets/images/marker-icon-blue.png';
   SHADOW_URL = '../assets/marker-shadow.png';
 
   options;
   vertices: LayerGroup;
   markers: Marker[] = [];
   positions: Position[];
-  markerIcon;
+  markerIconRed;
+  markerIconBlue;
   map: Map;
 
   constructor(private positionService: PositionService, public snackBar: MatSnackBar) { }
 
   ngOnInit() {
     this.positionService.getPositionsForSale().subscribe(positions => this.positions = positions);
-    this.markerIcon = icon({
+    this.markerIconRed = icon({
       iconSize: [25, 41],
       iconAnchor: [13, 41],
       popupAnchor: [0, -38],
-      iconUrl: this.ICON_URL,
+      iconUrl: this.ICON_URL_RED,
+      shadowUrl: this.SHADOW_URL
+    });
+
+    this.markerIconBlue = icon({
+      iconSize: [25, 41],
+      iconAnchor: [13, 41],
+      popupAnchor: [0, -38],
+      iconUrl: this.ICON_URL_BLUE,
       shadowUrl: this.SHADOW_URL
     });
 
@@ -44,7 +54,7 @@ export class MapComponent implements OnInit {
 
     this.positions.forEach((element) => {
       this.markers.push(marker(latLng(element.latitude, element.longitude),
-                              { icon: this.markerIcon })
+                              { icon: this.markerIconRed })
                         .bindPopup('<b>Coordinate:</b><br>LatLng(' + element.latitude + ', ' + element.longitude + ')')
                         );
     });
@@ -56,7 +66,7 @@ export class MapComponent implements OnInit {
   }
 
   onMapClick(e) {
-    const newMarker = marker(e.latlng, { icon: this.markerIcon })
+    const newMarker = marker(e.latlng, { icon: this.markerIconBlue })
       .bindPopup('<b>Coordinate:</b><br>' + e.latlng + '');
     this.map.addLayer(newMarker);
   }

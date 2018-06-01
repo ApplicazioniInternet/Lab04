@@ -7,13 +7,31 @@ import { Position } from './position';
   providedIn: 'root'
 })
 export class PositionService {
+  positionsBought: Position[] = [];
+  polygon: Position[];
 
   constructor() { }
 
-  getPositions(): Observable<Position[]> {
+  getPositionsForSale(): Observable<Position[]> {
     return of(POSITIONS);
   }
 
+  getPositionsBought(): Observable<Position[]> {
+    return of(this.positionsBought);
+  }
+
+  buyPositionsInArea(polygon: Position[]) {
+    console.log('Compro posizioni');
+    this.polygon = polygon;
+    this.positionsBought = this.getPositionsInPolygon(polygon);
+    this.positionsBought.forEach(element => {
+      console.log(element.latitude + ' ' + element.longitude);
+    });
+  }
+
+  getPolygon(): Observable<Position[]> {
+    return of(this.polygon);
+  }
 
   private isPositionsInPolygon(point: Position, polygon: Position[]): Boolean {
     const x = point.longitude;

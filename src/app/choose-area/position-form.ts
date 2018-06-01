@@ -47,4 +47,15 @@ export class PositionForm {
     sameCoordinates(position: Position) {
         return this.positionValue.latitude === position.latitude && this.positionValue.longitude === position.longitude;
     }
+
+    hasWrongInput() {
+        return this.latitudeFormControl.hasError('required') ||
+                this.latitudeFormControl.hasError('max') ||
+                this.latitudeFormControl.hasError('min') ||
+                this.latitudeFormControl.hasError('pattern') ||
+                this.longitudeFormControl.hasError('required') ||
+                this.longitudeFormControl.hasError('max') ||
+                this.longitudeFormControl.hasError('min') ||
+                this.longitudeFormControl.hasError('pattern');
+    }
 }

@@ -21,7 +21,7 @@ export class PositionsBoughtComponent implements OnInit {
 
   getPositions(): void {
     this.positionService // Questo sarà il servizio che si collegherà al nostro server
-      .getPositions() // Funzione per prendere le posizioni, ritorna un Observable perché la chiamatas sarà asincrona
+      .getPositionsBought() // Funzione per prendere le posizioni, ritorna un Observable perché la chiamatas sarà asincrona
       .subscribe(positions => this.positions = positions); // Essendo la cosa asincrona dobbiamo registrare una funzione
   }
 

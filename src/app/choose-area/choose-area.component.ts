@@ -14,6 +14,7 @@ import { MatSnackBar, MatButton } from '@angular/material';
 export class ChooseAreaComponent implements OnInit {
   numberOfVertices = 3;
   positions: Array<PositionForm>;
+  polygon: Array<Position> = [];
 
   constructor(private positionService: PositionService, public snackBar: MatSnackBar) {
   }
@@ -23,6 +24,19 @@ export class ChooseAreaComponent implements OnInit {
     for (let counter = 0; counter < this.numberOfVertices; counter++) {
       this.positions.push(new PositionForm(counter + 1));
     }
+
+    this.positionService.getPolygon().subscribe(polygon => {
+      this.polygon = polygon;
+      let i = 0;
+
+      if (this.polygon === undefined) {
+        return;
+      }
+      this.polygon.forEach(element => {
+        this.positions[i].positionValue = element;
+        i++;
+      });
+    });
   }
 
   formatLabel(value: number | null) { // Per formattare il label dello slider
@@ -31,10 +45,6 @@ export class ChooseAreaComponent implements OnInit {
     }
 
     return value;
-  }
-
-  getPositionAtIndex(i: number) {
-    return this.positions[i];
   }
 
   pushPositionForms(n: number) {
@@ -50,7 +60,6 @@ export class ChooseAreaComponent implements OnInit {
   }
 
   pitch(event: any) {
-    console.log(event.value + ' ' + this.numberOfVertices);
     if (this.numberOfVertices < event.value) {
       this.pushPositionForms(event.value - this.numberOfVertices);
     } else if (this.numberOfVertices > event.value) {
@@ -61,15 +70,18 @@ export class ChooseAreaComponent implements OnInit {
   }
 
   submit() {
-    let i = 0;
-    this.positions.forEach(element => {
-      console.log('Position #' + i++ + ' ' + element.positionValue.latitude + ' ' + element.positionValue.longitude);
-    });
-
-    if (this.inputVerticesOk() !== true) {
+    if (!this.inputVerticesOk()) { // È corretto l'input
       this.openSnackBar('Devi inserire almeno 3 vertici', 'OK');
+    } else if (!this.areValidVertices()) { // Sono vertici validi, ossia lo stesso vertice non è ripetuto (e disegnano una figura?)
+      this.openSnackBar('Non puoi ripetere lo stesso vertice più di una volta', 'OK');
     } else {
-      // Salviamo
+      // Compriamo
+      this.positions.forEach(element => {
+        this.polygon.push(element.positionValue);
+      });
+      this.polygon.push(this.polygon[0]);
+
+      this.positionService.buyPositionsInArea(this.polygon);
     }
   }
 
@@ -79,24 +91,27 @@ export class ChooseAreaComponent implements OnInit {
     });
   }
 
-  inputVerticesOk() {
+  inputVerticesOk(): boolean {
+    let wrongPositions = 0;
     this.positions.forEach(element => {
-      if (this.isValidVertex(element.positionValue) !== true) {
-        return false;
+      if (element.hasWrongInput()) {
+        wrongPositions++;
       }
     });
-    return true;
+
+    return wrongPositions === 0;
   }
 
-  isValidVertex(position: Position) {
-    if (position == null) {
-      return false;
-    }
-
-    this.positions.forEach(element => {
-      if (element.sameCoordinates(position)) {
-        return false;
-      }
+  areValidVertices(): boolean {
+    let repetition = 0;
+    this.positions.forEach(element0 => {
+      this.positions.forEach(element1 => {
+        if (element0.sameCoordinates(element1.positionValue) && element0 !== element1) {
+          repetition++;
+        }
+      });
     });
+
+    return repetition === 0;
   }
 }

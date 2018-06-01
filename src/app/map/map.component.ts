@@ -27,7 +27,7 @@ export class MapComponent implements OnInit {
   constructor(private positionService: PositionService, public snackBar: MatSnackBar) { }
 
   ngOnInit() {
-    this.positionService.getPositions().subscribe(positions => this.positions = positions);
+    this.positionService.getPositionsForSale().subscribe(positions => this.positions = positions);
     this.markerIcon = icon({
       iconSize: [25, 41],
       iconAnchor: [13, 41],

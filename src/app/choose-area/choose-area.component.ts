@@ -142,7 +142,6 @@ export class ChooseAreaComponent implements OnInit {
   inputVerticesOk(): boolean {
     let wrongPositions = 0;
     this.positions.forEach(element => {
-      console.log(element);
       if (element.hasWrongInput()) {
         wrongPositions++;
       }
@@ -176,6 +175,7 @@ export class ChooseAreaComponent implements OnInit {
     // Callback per quando si chiude il dialog
     dialogRef.afterClosed().subscribe(result => {
       this.positionService.notifyRemoveAllPosition();
+      this.polygon = [];
     });
   }
 }

@@ -39,7 +39,12 @@ export class PositionService {
 
   buyPositionsInArea(polygon: Position[]) {
     this.polygon = polygon;
-    this.positionsBought = this.getPositionsInPolygon(polygon);
+    this.positionsBought = new Array<Position>();
+    this.getPositionsInPolygon(this.polygon).forEach(element => {
+      if (this.positionsBought.indexOf(element, 0) === -1) {
+        this.positionsBought.push(element);
+      }
+    });
   }
 
   getPolygon(): Observable<Position[]> {

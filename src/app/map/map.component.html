@@ -10,4 +10,19 @@
          [leafletLayer]="marker">
     </div>
   </div>
+
+  <div style="padding: 8px">
+    <button mat-fab 
+            style="margin-right: 32px;"
+            matTooltip="Elimina ultimo marker"
+            (click)='removeLastAddedMarker()'>
+      <mat-icon style="color: #FFFFFF">location_off</mat-icon>
+    </button>
+    <button mat-fab 
+             style="margin-left: 32px;"
+             matTooltip="Elimina tutti i markers"
+            (click)='removeAllMarkers()'>
+      <mat-icon style="color: #FFFFFF">clear</mat-icon>
+    </button>
+  </div>
 </mat-card>

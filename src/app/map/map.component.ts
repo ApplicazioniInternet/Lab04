@@ -1,14 +1,23 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
-import { MatSnackBar, MatButton } from '@angular/material';
+import { MatSnackBar, MatButton, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/material';
 import { PositionService } from '../position.service';
 import { Position } from '../position';
 import { icon, latLng, marker, Marker, tileLayer, Map, LayerGroup } from 'leaflet';
 
+export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
+  showDelay: 500,
+  hideDelay: 100,
+  touchendHideDelay: 100,
+};
+
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
-  styleUrls: ['./map.component.css']
+  styleUrls: ['./map.component.css'],
+  providers: [
+    { provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults }
+  ],
 })
 export class MapComponent implements OnInit {
   // Coordinate di Torino [45.116177, 7.742615]
@@ -21,6 +30,7 @@ export class MapComponent implements OnInit {
   options;
   vertices: LayerGroup;
   markers: Marker[] = [];
+  polygon: Marker[] = [];
   positions: Position[];
   markerIconRed;
   markerIconBlue;
@@ -60,12 +70,12 @@ export class MapComponent implements OnInit {
     });
   }
 
-  onMapReady(map: Map) {
+  onMapReady(map: Map): void {
     this.map = map;
     map.on('click', this.onMapClick, this);
   }
 
-  onMapClick(e) {
+  onMapClick(e): void {
     const newPosition = new Position();
     const newMarker = marker(e.latlng, { icon: this.markerIconBlue })
       .bindPopup('<b>Coordinate:</b><br>' + e.latlng + '');
@@ -74,5 +84,27 @@ export class MapComponent implements OnInit {
     newPosition.longitude = newMarker.getLatLng().lng;
 
     this.positionService.notifyAddition(newPosition);
+    this.polygon.push(newMarker);
+
+    console.log(this.polygon.length);
+  }
+
+  removeLastAddedMarker(): void {
+    if (this.polygon.length === 0) {
+      return;
+    }
+    const m = this.polygon.pop();
+    this.map.removeLayer(m);
+  }
+
+  removeAllMarkers(): void {
+    if (this.polygon.length === 0) {
+      return;
+    }
+    this.polygon.forEach(element => {
+      this.map.removeLayer(element);
+    });
+
+    this.polygon = [];
   }
 }

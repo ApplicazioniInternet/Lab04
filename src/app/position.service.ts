@@ -36,6 +36,7 @@ export class PositionService {
   }
 
   notifyRemotion(position: Position): void {
+    this.inputPositionsFromForm.pop();
     this.removedPosition.emit(position);
   }
 

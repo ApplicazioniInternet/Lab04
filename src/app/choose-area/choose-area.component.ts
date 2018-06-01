@@ -73,9 +73,11 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   initPositionForm(): void {
     this.positions = new Array();
     if (this.positionService.savedFormInstanceState()) { // Avevo salvato qualcosa prima
-      this.positions = this.positionService.inputPositionsFromForm;
+      for ( let i = 0; i < Math.max(this.positionService.inputPositionsFromForm.length, 3); i++ ) {
+        this.positions.push(this.positionService.inputPositionsFromForm[i]);
+        this.positionService.inputPositionsFromForm.pop();
+      }
       this.numberOfVertices = Math.max(this.positions.length, 3);
-      this.positionService.clearSavedInputPositions();
     } else {
       this.resetPositionForm();
     }

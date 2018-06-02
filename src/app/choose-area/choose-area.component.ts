@@ -122,7 +122,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
       const removedPosition = this.positions.pop();
 
       if (!removedPosition.isEmpty()) {
-        this.positionService.notifyRemotion(removedPosition.positionValue);
+        this.positionService.notifyRemotionFromForm(removedPosition.id);
       }
     }
 

@@ -18,7 +18,7 @@
     
   <button mat-mini-fab class="add-remove" (click)='add()'>
       <mat-icon>add</mat-icon>
-    </button>
+  </button>
 
   <ul id="no-bullet-ul">
       <li *ngFor="let position of positions; let i = index;">
@@ -26,7 +26,11 @@
           <div class="container-item"><!-- Inizio container della singola casella di input -->
             <mat-form-field appearance="outline">
               <mat-label>Latitudine vertice #{{i + 1}}</mat-label>
-              <input id="{{i}}-latitude" matInput [formControl]="position.group.get('latitude')" placeholder="Latitudine">
+              <input id="{{i}}-latitude" 
+                    matInput 
+                    [formControl]="position.group.get('latitude')" 
+                    (blur)="notify(i, 'latitude', $event)"
+                    placeholder="Latitudine">
               <mat-icon matSuffix>place</mat-icon>
               <mat-error *ngIf="position.group.get('latitude').invalid">{{position.getErrorMessageLatitude()}}</mat-error>
             </mat-form-field>
@@ -34,7 +38,11 @@
           <div class="container-item"> <!-- Inizio container della singola casella di input -->
             <mat-form-field appearance="outline">
               <mat-label>Longitudine vertice #{{i + 1}}</mat-label>
-              <input id="{{i}}-longitude" matInput [formControl]="position.group.get('longitude')" placeholder="Longitudine">
+              <input id="{{i}}-longitude" 
+                    matInput 
+                    [formControl]="position.group.get('longitude')" 
+                    (blur)="notify(i, 'longitude', $event)"
+                    placeholder="Longitudine">
               <mat-icon matSuffix>place</mat-icon>
               <mat-error *ngIf="position.group.get('longitude').invalid">{{position.getErrorMessageLongitude()}}</mat-error>
             </mat-form-field>

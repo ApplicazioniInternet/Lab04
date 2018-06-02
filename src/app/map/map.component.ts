@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewEncapsulation, NgZone } from '@angular/core';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { MatSnackBar, MatButton, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/material';
 import { PositionService } from '../position.service';
@@ -18,6 +18,7 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   providers: [
     { provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults }
   ],
+  encapsulation: ViewEncapsulation.None,
 })
 export class MapComponent implements OnInit {
   // Coordinate di Torino [45.116177, 7.742615] se ci interessa
@@ -28,7 +29,6 @@ export class MapComponent implements OnInit {
   SHADOW_URL = '../assets/images/marker-shadow.png';
 
   options;
-  vertices: LayerGroup;
   markers: Marker[] = [];
   polygon: Marker[] = [];
   positions: Position[];
@@ -36,7 +36,7 @@ export class MapComponent implements OnInit {
   markerIconBlue;
   map: Map;
 
-  constructor(private positionService: PositionService, public snackBar: MatSnackBar) { }
+  constructor(private positionService: PositionService, public snackBar: MatSnackBar, private zone: NgZone) { }
 
   ngOnInit() {
     this.positionService.getPositionsForSale().subscribe(positions => this.positions = positions);
@@ -79,18 +79,27 @@ export class MapComponent implements OnInit {
       this.clearMap();
     });
 
-    // Metto un listener per capire quando devo rimuovere una posizioneß
-    this.positionService.removedPosition.subscribe(position => {
-      let markerToBeRemoved;
-      this.polygon.forEach(element => {
-        if (element.getLatLng().lat === position.latitude && element.getLatLng().lng === position.longitude) {
-          markerToBeRemoved = position;
+    // Metto un listener per capire quando devo rimuovere una posizione
+    this.positionService.removedPositionFromForm.subscribe(index => {
+      const newPolygon: Marker[] = [];
+      for (let i = 0; i < this.polygon.length; i++) {
+        if (i === index && this.polygon[i] !== undefined) {
+          this.removeMarker(this.polygon[i]);
+        } else {
+          newPolygon.push(this.polygon[i]);
         }
+      }
 
-        return;
-      });
+      this.polygon = newPolygon;
+    });
 
-      this.removeMarker(markerToBeRemoved);
+    // Metto un listener per sapere se dal form c'è una posizione nuova inserita
+    this.positionService.addedPositionFromForm.subscribe(position => {
+      const newMarker = marker(latLng(position.latitude, position.longitude),
+        { icon: this.markerIconBlue })
+        .bindPopup('<b>Coordinate:</b><br>LatLng(' + position.latitude + ', ' + position.longitude + ')');
+      this.polygon.push(newMarker);
+      this.map.addLayer(newMarker);
     });
   }
 
@@ -102,6 +111,11 @@ export class MapComponent implements OnInit {
 
   // Funzione chiamata quando c'è un click sulla mappa (click per single spot, quindi non click prolungato)
   onMapClick(e): void {
+    if (this.polygon.length === 10) {
+      this.openSnackBar('Puoi inserire al massimo 10 vertici', 'OK');
+      return;
+    }
+
     const newPosition = new Position();
     const newMarker = marker(e.latlng, { icon: this.markerIconBlue })
       .bindPopup('<b>Coordinate:</b><br>' + e.latlng + '');
@@ -159,5 +173,14 @@ export class MapComponent implements OnInit {
     position.longitude = m.getLatLng().lng;
 
     return position;
+  }
+
+  // Apri la snack bar e fai vedere un messaggio con un bottoncino di fianco
+  openSnackBar(message: string, action: string) {
+    this.zone.run(() => {
+      this.snackBar.open(message, action, {
+        duration: 2000,
+      });
+    });
   }
 }

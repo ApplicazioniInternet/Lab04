@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, Inject, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Inject, Output, EventEmitter, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormControl, Validators, Form } from '@angular/forms';
 import { MatSnackBar, MatButton, MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatSlider } from '@angular/material';
 import { PositionForm } from './position-form';
@@ -8,9 +8,12 @@ import { Position } from '../position';
 @Component({
   selector: 'app-choose-area',
   templateUrl: './choose-area.component.html',
-  styleUrls: ['./choose-area.component.css']
+  styleUrls: ['./choose-area.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class ChooseAreaComponent implements OnInit, OnDestroy {
+  minNumberOfVertices = 3;
+  maxNumberOfVertices = 10;
   numberOfVertices = 3;
   positions: Array<PositionForm> = [];
   polygon: Array<Position> = [];
@@ -56,7 +59,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
           document.getElementById(element.id.toString() + '-longitude').blur();
 
           const index = this.positions.indexOf(element, 0);
-          if (index > -1 && this.positions.length > 3) {
+          if (index > -1 && this.positions.length > this.minNumberOfVertices) {
             this.popPositionForms(1);
           }
         }
@@ -73,11 +76,14 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   initPositionForm(): void {
     this.positions = new Array();
     if (this.positionService.savedFormInstanceState()) { // Avevo salvato qualcosa prima
-      for ( let i = 0; i < Math.max(this.positionService.inputPositionsFromForm.length, 3); i++ ) {
+      for ( let i = 0; i < Math.max(this.positionService.inputPositionsFromForm.length, this.minNumberOfVertices); i++ ) {
         this.positions.push(this.positionService.inputPositionsFromForm[i]);
+      }
+      for (let i = 0; i < Math.max(this.positionService.inputPositionsFromForm.length, this.minNumberOfVertices); i++) {
         this.positionService.inputPositionsFromForm.pop();
       }
-      this.numberOfVertices = Math.max(this.positions.length, 3);
+
+      this.numberOfVertices = Math.max(this.positions.length, this.minNumberOfVertices);
     } else {
       this.resetPositionForm();
     }
@@ -86,7 +92,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   // Funzione per resettare il form
   resetPositionForm(): void {
     this.positions = new Array();
-    this.numberOfVertices = 3;
+    this.numberOfVertices = this.minNumberOfVertices;
     for (let counter = 0; counter < this.numberOfVertices; counter++) {
       const newPositionForm = new PositionForm(counter);
       this.positions.push(newPositionForm);
@@ -113,7 +119,11 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   // Funzione per rimuovere 'n' form delle posizioni dal fondo
   popPositionForms(n: number) {
     for (let i = 0; i < n; i++) {
-      this.positions.pop();
+      const removedPosition = this.positions.pop();
+
+      if (!removedPosition.isEmpty()) {
+        this.positionService.notifyRemotion(removedPosition.positionValue);
+      }
     }
 
     this.numberOfVertices -= n;
@@ -130,21 +140,14 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
   // Aggiunge un form
   add() {
-    if (this.numberOfVertices < 10) {
+    if (this.numberOfVertices < this.maxNumberOfVertices) {
       this.pushPositionForms(1);
-    }
-  }
-
-  // Toglie un form
-  remove() {
-    if (this.numberOfVertices > 3) {
-      this.popPositionForms(1);
     }
   }
 
   // Funzione chiamata quando si è cliccato il fab in basso
   submit() {
-    if (this.numberOfVertices > 3 && this.numberOfVertices !== 10) {
+    if (this.numberOfVertices > this.minNumberOfVertices && this.numberOfVertices !== this.maxNumberOfVertices) {
       this.popPositionForms(1);
     }
 
@@ -208,6 +211,50 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
       this.positionService.notifyRemoveAllPosition();
       this.polygon = [];
     });
+  }
+
+  // Funzione che avvisa quando c'è un nuovo input
+  notifyInput(formIndex: number, discriminator: string, value: number): void {
+    console.log(this.positions[formIndex].positionValue);
+    console.log(value);
+    if (discriminator === 'latitude') {
+      if (!this.positions[formIndex].hasWrongLatitude()) {
+        if (this.positions[formIndex].positionValue.latitude !== value &&
+          this.positions[formIndex].positionValue.latitude !== undefined) {
+          this.positionService.notifyRemotionFromForm(formIndex);
+        }
+        this.positions[formIndex].inputLatitude(+this.positions[formIndex].group.get(discriminator).value);
+      } else {
+        this.positions[formIndex].inputLatitude(undefined);
+      }
+    } else if (discriminator === 'longitude') {
+      if (!this.positions[formIndex].hasWrongLongitude()) {
+        if (this.positions[formIndex].positionValue.longitude !== value &&
+            this.positions[formIndex].positionValue.longitude !== undefined) {
+          this.positionService.notifyRemotionFromForm(formIndex);
+        }
+        this.positions[formIndex].inputLongitude(+this.positions[formIndex].group.get(discriminator).value);
+      } else {
+        this.positions[formIndex].inputLongitude(undefined);
+      }
+    }
+
+    if (!this.positions[formIndex].isEmpty() && !this.positions[formIndex].hasWrongInput()) {
+      this.positionService.notifyAdditionFromForm(this.positions[formIndex].positionValue);
+    } else {
+      if (this.positions[formIndex].hasWrongInput()) {
+        this.positionService.notifyRemotionFromForm(formIndex);
+      }
+    }
+  }
+
+  // Funzione che viene chiamata quando si ha finito con un campo del form
+  notify(formIndex: number, discriminator: string, event: any): void {
+    this.notifyInput(formIndex, discriminator, +event.srcElement.value);
+  }
+
+  hasElementFocus(name: string): boolean {
+    return document.getElementById(name) === document.activeElement;
   }
 }
 

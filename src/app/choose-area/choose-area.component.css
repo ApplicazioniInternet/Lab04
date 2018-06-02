@@ -26,6 +26,12 @@
   width: 100%;
 }
 
+.remove-position {
+  position: relative;
+  top: 16px;
+  right: 25px;
+}
+
 #dialog-button{
   margin: 4px;
 }

@@ -1,8 +1,8 @@
 export class Position {
-    id: number;
-    latitude: number;
-    longitude: number;
-    timestamp: number;
+    id: number = undefined;
+    latitude: number = undefined;
+    longitude: number = undefined;
+    timestamp: number = undefined;
 
     constructor (id?: number, latitude?: number, longitude?: number, timestamp?: number) {
         this.id = id;

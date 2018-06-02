@@ -215,8 +215,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
   // Funzione che avvisa quando c'è un nuovo input
   notifyInput(formIndex: number, discriminator: string, value: number): void {
-    console.log(this.positions[formIndex].positionValue);
-    console.log(value);
+    console.log('Form index: ' + formIndex);
     if (discriminator === 'latitude') {
       if (!this.positions[formIndex].hasWrongLatitude()) {
         if (this.positions[formIndex].positionValue.latitude !== value &&
@@ -281,7 +280,6 @@ export class DialogOverviewComponent implements OnInit {
   }
 
   onConfermaClick(): void {
-    console.log(this.data.polygon);
     this.positionService.buyPositionsInArea(this.data.polygon);
     this.dialogRef.close();
   }

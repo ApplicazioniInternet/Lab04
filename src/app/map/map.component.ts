@@ -4,6 +4,7 @@ import { MatSnackBar, MatButton, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultO
 import { PositionService } from '../position.service';
 import { Position } from '../position';
 import { icon, latLng, marker, Marker, tileLayer, Map, LayerGroup } from 'leaflet';
+import { element } from 'protractor';
 
 export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -67,10 +68,10 @@ export class MapComponent implements OnInit {
     };
 
     // Metto un marker per ogni posizione degli utenti presa dal database
-    this.positions.forEach((element) => {
-      this.markers.push(marker(latLng(element.latitude, element.longitude),
+    this.positions.forEach(e => {
+      this.markers.push(marker(latLng(e.latitude, e.longitude),
                               { icon: this.markerIconRed })
-                        .bindPopup('<b>Coordinate:</b><br>LatLng(' + element.latitude + ', ' + element.longitude + ')')
+                        .bindPopup('<b>Coordinate:</b><br>LatLng(' + e.latitude + ', ' + e.longitude + ')')
                         );
     });
 
@@ -98,8 +99,20 @@ export class MapComponent implements OnInit {
       const newMarker = marker(latLng(position.latitude, position.longitude),
         { icon: this.markerIconBlue })
         .bindPopup('<b>Coordinate:</b><br>LatLng(' + position.latitude + ', ' + position.longitude + ')');
-      this.polygon.push(newMarker);
-      this.map.addLayer(newMarker);
+      console.log('Chiamato ' + this.polygon.indexOf(newMarker));
+      let alreadyPresent = false;
+
+      this.polygon.forEach( m => {
+        if (m.getLatLng().lat === newMarker.getLatLng().lat &&
+            m.getLatLng().lng === newMarker.getLatLng().lng) {
+              alreadyPresent = true;
+          }
+      });
+
+      if (!alreadyPresent) {
+        this.polygon.push(newMarker);
+        this.map.addLayer(newMarker);
+      }
     });
   }
 
@@ -119,12 +132,12 @@ export class MapComponent implements OnInit {
     const newPosition = new Position();
     const newMarker = marker(e.latlng, { icon: this.markerIconBlue })
       .bindPopup('<b>Coordinate:</b><br>' + e.latlng + '');
-    this.map.addLayer(newMarker);
     newPosition.latitude = newMarker.getLatLng().lat;
     newPosition.longitude = newMarker.getLatLng().lng;
 
-    this.positionService.notifyAddition(newPosition);
+    this.map.addLayer(newMarker);
     this.polygon.push(newMarker);
+    this.positionService.notifyAddition(newPosition);
   }
 
   // Funzione per rimuovere l'ultimo marker che è stato aggiunto
@@ -147,8 +160,8 @@ export class MapComponent implements OnInit {
 
   // Funzione per pulire la mappa
   clearMap(): void {
-    this.polygon.forEach(element => {
-      this.map.removeLayer(element);
+    this.polygon.forEach(e => {
+      this.map.removeLayer(e);
     });
 
     this.polygon = [];

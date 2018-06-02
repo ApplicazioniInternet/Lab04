@@ -12,11 +12,8 @@ import { Position } from '../position';
   encapsulation: ViewEncapsulation.None
 })
 export class ChooseAreaComponent implements OnInit, OnDestroy {
-  minNumberOfVertices = 3;
-  maxNumberOfVertices = 10;
-  numberOfVertices = 3;
   positions: Array<PositionForm> = [];
-  polygon: Array<Position> = [];
+  numberOfVertices = 3;
 
   constructor(private positionService: PositionService, public snackBar: MatSnackBar, public dialog: MatDialog) { }
 
@@ -24,23 +21,9 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     this.initPositionForm();
 
     // Metto un listener per sapere se dall'altra parte è stata aggiunta una posizione
-    this.positionService.addedPosition.subscribe(position => {
-      let added = false;
-      let index = 0;
-
-      this.positions.forEach(element => {
-        if (index++ === this.numberOfVertices - 1 && !added && index < 10) {
-          this.pushPositionForms(1);
-        }
-
-        if (element.isEmpty() && !added) {
-          element.updateView(position.latitude, position.longitude);
-          document.getElementById(element.id.toString() + '-latitude').focus();
-          document.getElementById(element.id.toString() + '-longitude').focus();
-          document.getElementById(element.id.toString() + '-longitude').blur();
-          added = true;
-        }
-      });
+    this.positionService.addedPositionFromMap.subscribe(addedPosition => {
+      this.getIndexEmptyForm();
+      this.addFormWithPosition(addedPosition);
     });
 
     // Metto un listener per sapere se dall'altra parte sono state tolte tutte le posizioni
@@ -50,20 +33,13 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     });
 
     // Metto un listener per sapere se dall'altra parte è stata tolta una sola posizione
-    this.positionService.removedPosition.subscribe(position => {
-      this.positions.forEach(element => {
-        if (element.sameCoordinates(position)) {
-          element.updateView(undefined, undefined);
-          document.getElementById(element.id.toString() + '-latitude').focus();
-          document.getElementById(element.id.toString() + '-longitude').focus();
-          document.getElementById(element.id.toString() + '-longitude').blur();
-
-          const index = this.positions.indexOf(element, 0);
-          if (index > -1 && this.positions.length > this.minNumberOfVertices) {
-            this.popPositionForms(1);
-          }
-        }
-      });
+    this.positionService.removedPositionFromMap.subscribe(position => {
+      if (this.getNumberOfNotEmptyForms() > this.positionService.minNumberOfVertices) {
+        this.positions.pop();
+        this.numberOfVertices--;
+      } else {
+        this.positions[this.getNumberOfNotEmptyForms() - 1].updateView(undefined, undefined);
+      }
     });
   }
 
@@ -76,14 +52,14 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   initPositionForm(): void {
     this.positions = new Array();
     if (this.positionService.savedFormInstanceState()) { // Avevo salvato qualcosa prima
-      for ( let i = 0; i < Math.max(this.positionService.inputPositionsFromForm.length, this.minNumberOfVertices); i++ ) {
+      for ( let i = 0; i < Math.max(this.positionService.inputPositionsFromForm.length, this.positionService.minNumberOfVertices); i++ ) {
         this.positions.push(this.positionService.inputPositionsFromForm[i]);
       }
-      for (let i = 0; i < Math.max(this.positionService.inputPositionsFromForm.length, this.minNumberOfVertices); i++) {
+      for (let i = 0; i < Math.max(this.positionService.inputPositionsFromForm.length, this.positionService.minNumberOfVertices); i++) {
         this.positionService.inputPositionsFromForm.pop();
       }
 
-      this.numberOfVertices = Math.max(this.positions.length, this.minNumberOfVertices);
+      this.numberOfVertices = Math.max(this.positions.length, this.positionService.minNumberOfVertices);
     } else {
       this.resetPositionForm();
     }
@@ -92,16 +68,65 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   // Funzione per resettare il form
   resetPositionForm(): void {
     this.positions = new Array();
-    this.numberOfVertices = this.minNumberOfVertices;
+    this.numberOfVertices = this.positionService.minNumberOfVertices;
     for (let counter = 0; counter < this.numberOfVertices; counter++) {
       const newPositionForm = new PositionForm(counter);
       this.positions.push(newPositionForm);
     }
   }
+
+  getNumberOfVertices(): number {
+    return this.numberOfVertices;
+  }
+
+  addFormWithPosition(position: Position): void {
+    if (this.numberOfVertices - this.getNumberOfNotEmptyForms() === 1) {
+      this.pushPositionForms(1);
+    }
+
+    let indexEmptyForm = this.getIndexEmptyForm();
+    const pf = (indexEmptyForm === -1) ? new PositionForm(this.numberOfVertices + 1) : this.positions[indexEmptyForm];
+
+    if (indexEmptyForm === -1 && this.positionService.canAddPosition()) {
+      indexEmptyForm = this.positions.length - 1;
+    }
+
+    this.positions[indexEmptyForm].updateView(position.latitude, position.longitude);
+
+    document.getElementById(indexEmptyForm + '-latitude').focus();
+    document.getElementById(indexEmptyForm + '-longitude').focus();
+    document.getElementById(indexEmptyForm + '-longitude').blur();
+  }
+
+  getNumberOfNotEmptyForms(): number {
+    let counter = 0;
+    this.positions.forEach(p => {
+      if (!p.isEmpty()) {
+        counter++;
+      }
+    });
+
+    return counter;
+  }
+
+  getIndexEmptyForm(): number {
+    let index = -1, i = 0;
+    let found = false;
+    this.positions.forEach(form => {
+      if (form.isEmpty() && !found) {
+        index = i;
+        found = true;
+      }
+      i++;
+    });
+
+    return index;
+  }
+
   // Funzione per formattare il label dello slider
   formatLabel(value: number | null) {
     if (!value) {
-      return this.numberOfVertices;
+      return this.getNumberOfVertices();
     }
 
     return value;
@@ -109,6 +134,9 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
   // Funzione per aggiungere 'n' form delle posizioni
   pushPositionForms(n: number) {
+    if (this.numberOfVertices === this.positionService.maxNumberOfVertices) {
+      return;
+    }
     for ( let i = 0; i < n; i++ ) {
       this.positions.push(new PositionForm(this.numberOfVertices + i));
     }
@@ -127,18 +155,6 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     }
 
     this.numberOfVertices -= n;
-
-    // Controllo che ci sia lo spazio per inserire altri eventuali vertici
-    let numberOfFilledForms = 0;
-    for (let i = 0; i < this.numberOfVertices; i++) {
-      if (!this.positions[i].isEmpty()) {
-        numberOfFilledForms++;
-      }
-    }
-
-    if (numberOfFilledForms === this.numberOfVertices) {
-      this.pushPositionForms(1);
-    }
   }
 
   // Funzione chiamata quando si modifica il valore dello slider
@@ -152,22 +168,22 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
   // Aggiunge un form
   add() {
-    if (this.numberOfVertices < this.maxNumberOfVertices) {
+    if (this.numberOfVertices < this.positionService.maxNumberOfVertices) {
       this.pushPositionForms(1);
     }
   }
 
   // Rimuove un form
   remove() {
-      console.log(this.numberOfVertices);
-      if (this.numberOfVertices > this.minNumberOfVertices) {
-          this.popPositionForms(1);
-      }
+    if (this.numberOfVertices > this.positionService.minNumberOfVertices) {
+        this.popPositionForms(1);
+    }
   }
 
   // Funzione chiamata quando si è cliccato il fab in basso
   submit() {
-    if (this.numberOfVertices > this.minNumberOfVertices && this.numberOfVertices !== this.maxNumberOfVertices) {
+    if (this.numberOfVertices > this.positionService.minNumberOfVertices &&
+        this.numberOfVertices !== this.positionService.maxNumberOfVertices) {
       this.popPositionForms(1);
     }
 
@@ -176,11 +192,6 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     } else if (!this.areValidVertices()) { // Sono vertici validi, ossia lo stesso vertice non è ripetuto (e disegnano una figura?)
       this.openSnackBar('Non puoi ripetere lo stesso vertice più di una volta', 'OK');
     } else {
-      // Compriamo
-      this.positions.forEach(element => {
-        this.polygon.push(element.positionValue);
-      });
-
       this.openDialog();
     }
   }
@@ -223,53 +234,24 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(DialogOverviewComponent, {
       height: '250px',
       width: '250px',
-      data: { polygon: this.polygon }
+      data: {  }
     });
 
     // Callback per quando si chiude il dialog
     dialogRef.afterClosed().subscribe(result => {
       this.positionService.notifyRemoveAllPosition();
-      this.polygon = [];
     });
-  }
-
-  // Funzione che avvisa quando c'è un nuovo input
-  notifyInput(formIndex: number, discriminator: string, value: number): void {
-    console.log('Form index: ' + formIndex);
-    if (discriminator === 'latitude') {
-      if (!this.positions[formIndex].hasWrongLatitude()) {
-        if (this.positions[formIndex].positionValue.latitude !== value &&
-          this.positions[formIndex].positionValue.latitude !== undefined) {
-          this.positionService.notifyRemotionFromForm(formIndex);
-        }
-        this.positions[formIndex].inputLatitude(+this.positions[formIndex].group.get(discriminator).value);
-      } else {
-        this.positions[formIndex].inputLatitude(undefined);
-      }
-    } else if (discriminator === 'longitude') {
-      if (!this.positions[formIndex].hasWrongLongitude()) {
-        if (this.positions[formIndex].positionValue.longitude !== value &&
-            this.positions[formIndex].positionValue.longitude !== undefined) {
-          this.positionService.notifyRemotionFromForm(formIndex);
-        }
-        this.positions[formIndex].inputLongitude(+this.positions[formIndex].group.get(discriminator).value);
-      } else {
-        this.positions[formIndex].inputLongitude(undefined);
-      }
-    }
-
-    if (!this.positions[formIndex].isEmpty() && !this.positions[formIndex].hasWrongInput()) {
-      this.positionService.notifyAdditionFromForm(this.positions[formIndex].positionValue);
-    } else {
-      if (this.positions[formIndex].hasWrongInput()) {
-        this.positionService.notifyRemotionFromForm(formIndex);
-      }
-    }
   }
 
   // Funzione che viene chiamata quando si ha finito con un campo del form
   notify(formIndex: number, discriminator: string, event: any): void {
-    this.notifyInput(formIndex, discriminator, +event.srcElement.value);
+    const valid = !this.positions[formIndex].hasWrongInput() &&
+                  !this.positions[formIndex].hasWrongLatitude() &&
+                  !this.positions[formIndex].hasWrongLongitude();
+    if (valid) {
+      this.positions[formIndex].updateFormView();
+    }
+    this.positionService.inputFromForm(formIndex, discriminator, +event.srcElement.value, valid);
   }
 
   hasElementFocus(name: string): boolean {
@@ -300,12 +282,12 @@ export class DialogOverviewComponent implements OnInit {
   }
 
   onConfermaClick(): void {
-    this.positionService.buyPositionsInArea(this.data.polygon);
+    this.positionService.buyPositionsInArea(this.positionService.polygonPosition);
     this.dialogRef.close();
   }
 
   getNumberOfPositionsInArea(): number {
-    return this.positionService.countPositionsInPolygon(this.data.polygon);
+    return this.positionService.countPositionsInPolygon(this.positionService.polygonPosition);
   }
 
 }

@@ -39,6 +39,10 @@ export class PositionForm {
         return (g.get('latitude').valid && g.get('longitude').valid) ? null : { 'mismatch': true };
     }
 
+    updateFormView(): void {
+        this.updateView(+this.group.get('latitude').value, +this.group.get('longitude').value);
+    }
+
     // Funzione per fare l'update dell'input arrivato dalla mappa
     updateView(latitude: number, longitude: number): void {
         this.inputLatitude(latitude);

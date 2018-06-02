@@ -127,6 +127,18 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     }
 
     this.numberOfVertices -= n;
+
+    // Controllo che ci sia lo spazio per inserire altri eventuali vertici
+    let numberOfFilledForms = 0;
+    for (let i = 0; i < this.numberOfVertices; i++) {
+      if (!this.positions[i].isEmpty()) {
+        numberOfFilledForms++;
+      }
+    }
+
+    if (numberOfFilledForms === this.numberOfVertices) {
+      this.pushPositionForms(1);
+    }
   }
 
   // Funzione chiamata quando si modifica il valore dello slider
@@ -145,8 +157,9 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Aggiunge un form
+  // Rimuove un form
   remove() {
+      console.log(this.numberOfVertices);
       if (this.numberOfVertices > this.minNumberOfVertices) {
           this.popPositionForms(1);
       }

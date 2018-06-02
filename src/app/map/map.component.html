@@ -2,7 +2,6 @@
   <div 
     id="map-id" 
     leaflet
-    style="height: 300px;"
     (leafletMapReady)="onMapReady($event)"
     [leafletOptions]="options"
   >
@@ -11,7 +10,7 @@
     </div>
   </div>
 
-  <div style="padding: 8px">
+  <div class="maps-button">
     <button mat-fab 
             style="margin-right: 32px;"
             matTooltip="Elimina ultimo marker"

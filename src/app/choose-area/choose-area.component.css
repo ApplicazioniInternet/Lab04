@@ -1,3 +1,7 @@
+mat-card {
+  min-height: 600px;
+}
+
 .container{
   padding: 8px;
 }
@@ -57,4 +61,10 @@ mat-dialog-container{
 
 mat-icon {
   color: #FFFFFF
+}
+
+.scroll-box {
+  overflow-y: scroll;
+  height: 500px;
+  padding: 1rem
 }

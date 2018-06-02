@@ -145,6 +145,13 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Aggiunge un form
+  remove() {
+      if (this.numberOfVertices > this.minNumberOfVertices) {
+          this.popPositionForms(1);
+      }
+  }
+
   // Funzione chiamata quando si è cliccato il fab in basso
   submit() {
     if (this.numberOfVertices > this.minNumberOfVertices && this.numberOfVertices !== this.maxNumberOfVertices) {

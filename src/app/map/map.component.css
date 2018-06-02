@@ -1,0 +1,11 @@
+mat-card {
+    min-height: 600px;
+}
+
+#map-id {
+    height: 500px;
+}
+
+.maps-button {
+    padding: 45px 0 24px 0;
+}

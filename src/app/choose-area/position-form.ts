@@ -19,8 +19,8 @@ export class PositionForm {
                                                         Validators.max(90),
                                                         Validators.pattern('\-?[0-9]+[.]?[0-9]*')]);
         const longitudeFormControl = new FormControl('', [Validators.required,
-                                                        Validators.min(-360),
-                                                        Validators.max(360),
+                                                        Validators.min(-180),
+                                                        Validators.max(180),
                                                         Validators.pattern('\-?[0-9]+[.]?[0-9]*')]);
 
         // Metto tutti i validatori in un unico gruppo

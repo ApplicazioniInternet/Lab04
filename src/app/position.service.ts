@@ -97,7 +97,7 @@ export class PositionService {
         !this.alreadyAddedPosition(this.newPosition) &&
         !modification
       ) {
-      this.notifyAdditionFromForm(this.newPosition);
+      this.notifyAdditionFromForm(this.newPosition, formIndex);
       this.initNewPosition();
     } else if (modification) {
       this.notifyRemotionFromForm(formIndex);
@@ -106,18 +106,18 @@ export class PositionService {
       } else if (discriminator === 'longitude') {
         this.polygonPosition[formIndex].longitude = value;
       }
-      this.notifyAdditionFromForm(this.polygonPosition[formIndex]);
+      this.notifyAdditionFromForm(this.polygonPosition[formIndex], formIndex);
       this.initNewPosition();
     }
   }
 
-  notifyAdditionFromForm(position: Position): void {
+  notifyAdditionFromForm(position: Position, formIndex: number): void {
     const newMarker = marker(latLng(position.latitude, position.longitude),
                               { icon: this.markerIconBlue })
                               .bindPopup('<b>Coordinate:</b><br>LatLng(' + position.latitude + ', ' + position.longitude + ')'
                             );
-    this.polygonPosition.push(position);
-    this.polygonMarkers.push(newMarker);
+    this.polygonPosition[formIndex] = position;
+    this.polygonMarkers[formIndex] = newMarker;
     this.addedPositionFromForm.emit(newMarker);
   }
 

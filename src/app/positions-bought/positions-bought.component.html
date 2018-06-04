@@ -3,6 +3,9 @@
     Posizioni acquistate
   </mat-card-title>
   <div class="container">
+    <h2 class="no-positions" *ngIf="positions.length === 0">
+      Nessuna posizione acquistata.
+    </h2>
     <ul id="no-bullet-ul">
       <mat-accordion>
         <li

@@ -36,6 +36,7 @@ export class PositionService {
   @Output() removedPositionFromForm: EventEmitter<Marker> = new EventEmitter();
   @Output() removedPositionForSale: EventEmitter<Marker> = new EventEmitter();
   @Output() clearAllPositions: EventEmitter<void> = new EventEmitter();
+  @Output() newPositionsBought: EventEmitter<Position[]> = new EventEmitter();
 
   constructor() {
     // Marker per le posizioni degli utenti che sono sulla mappa
@@ -149,12 +150,13 @@ export class PositionService {
   }
 
   buyPositionsInArea(polygon: Position[]) {
-    this.positionsBought = new Array<Position>();
     this.getPositionsInPolygon(this.polygonPosition).forEach(element => {
       if (this.positionsBought.indexOf(element, 0) === -1) {
         this.positionsBought.push(element);
       }
     });
+
+    this.newPositionsBought.emit(this.positionsBought);
   }
 
   verifySales(dateMin: number, dateMax: number) {

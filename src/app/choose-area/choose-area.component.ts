@@ -185,12 +185,6 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
   // Funzione chiamata quando si è cliccato il fab in basso
   submit() {
-    // perchè esiteva questa?
-    // if (this.numberOfVertices > this.positionService.minNumberOfVertices &&
-    //     this.numberOfVertices !== this.positionService.maxNumberOfVertices) {
-    //   this.popPositionForms(1);
-    // }
-
     if (!this.inputVerticesOk()) { // È corretto l'input
       this.openSnackBar('Presente almeno un valore errato', 'OK');
     } else if (!this.areValidVertices()) { // Sono vertici validi, ossia lo stesso vertice non è ripetuto (e disegnano una figura?)

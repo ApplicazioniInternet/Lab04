@@ -8,21 +8,14 @@ import { PositionService } from '../position.service';
   styleUrls: ['./positions-bought.component.css']
 })
 export class PositionsBoughtComponent implements OnInit {
-  positions: Position[];
-  panelOpenState: boolean;
+  positions: Position[] = new Array<Position>();
 
-  constructor(private positionService: PositionService) {
-    this.panelOpenState = false;
-  }
+  constructor(private positionService: PositionService) { }
 
   ngOnInit() {
-    this.getPositions();
+    this.positionService.newPositionsBought.subscribe(positionBought => {
+      this.positions = new Array<Position>();
+      this.positions = positionBought;
+    });
   }
-
-  getPositions(): void {
-    this.positionService // Questo sarà il servizio che si collegherà al nostro server
-      .getPositionsBought() // Funzione per prendere le posizioni, ritorna un Observable perché la chiamatas sarà asincrona
-      .subscribe(positions => this.positions = positions); // Essendo la cosa asincrona dobbiamo registrare una funzione
-  }
-
 }

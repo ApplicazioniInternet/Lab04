@@ -146,17 +146,23 @@ export class MapComponent implements OnInit {
     return position;
   }
 
-  verifySalesMin(date: MatDatepickerInputEvent<Date>) {
+  updateSalesMin(date: MatDatepickerInputEvent<Date>) {
     this.dateMin = date.value.valueOf() / 1000;
-    this.positionService.verifySales(this.dateMin, this.dateMax);
   }
 
-  verifySalesMax(date: MatDatepickerInputEvent<Date>) {
+  updateSalesMax(date: MatDatepickerInputEvent<Date>) {
     this.dateMax = date.value.valueOf() / 1000;
+  }
+
+  verifySales() {
+    if(this.dateMin >= this.dateMax) {
+      this.openSnackBar('La data di inizio deve essere minore della data di fine', 'OK');
+      return;
+    }
     this.positionService.verifySales(this.dateMin, this.dateMax);
   }
 
-  // Apri la snack bar e fai vedere un messaggio con un bottoncino di fianco
+    // Apri la snack bar e fai vedere un messaggio con un bottoncino di fianco
   openSnackBar(message: string, action: string) {
     this.zone.run(() => {
       this.snackBar.open(message, action, {

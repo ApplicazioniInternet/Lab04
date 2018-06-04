@@ -1,17 +1,24 @@
 <mat-card>
     <mat-form-field style="padding-right: 20px;">
-        <input matInput [matDatepicker]="picker1" placeholder="Choose min date"
-               (dateInput)="verifySalesMin($event)" (dateChange)="verifySalesMin($event)">
+        <input matInput [matDatepicker]="picker1" placeholder="Scegli data di inizio"
+               (dateInput)="updateSalesMin($event)" (dateChange)="updateSalesMin($event)">
         <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
         <mat-datepicker #picker1></mat-datepicker>
     </mat-form-field>
 
     <mat-form-field>
-        <input matInput [matDatepicker]="picker2" placeholder="Choose max date"
-               (dateInput)="verifySalesMax($event)" (dateChange)="verifySalesMax($event)">
+        <input matInput [matDatepicker]="picker2" placeholder="Scegli data di fine"
+               (dateInput)="updateSalesMax($event)" (dateChange)="updateSalesMax($event)">
         <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
         <mat-datepicker #picker2></mat-datepicker>
     </mat-form-field>
+
+    <button mat-fab
+            style="margin-left: 32px;"
+            matTooltip="Filtra per data"
+            (click)='verifySales()'>
+        <mat-icon style="color: #FFFFFF">refresh</mat-icon>
+    </button>
 
   <div 
     id="map-id" 

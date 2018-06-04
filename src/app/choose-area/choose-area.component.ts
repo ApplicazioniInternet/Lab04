@@ -185,15 +185,18 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
   // Funzione chiamata quando si è cliccato il fab in basso
   submit() {
-    if (this.numberOfVertices > this.positionService.minNumberOfVertices &&
-        this.numberOfVertices !== this.positionService.maxNumberOfVertices) {
-      this.popPositionForms(1);
-    }
+    // perchè esiteva questa?
+    // if (this.numberOfVertices > this.positionService.minNumberOfVertices &&
+    //     this.numberOfVertices !== this.positionService.maxNumberOfVertices) {
+    //   this.popPositionForms(1);
+    // }
 
     if (!this.inputVerticesOk()) { // È corretto l'input
-      this.openSnackBar('Devi inserire almeno 3 vertici', 'OK');
+      this.openSnackBar('Presente almeno un valore errato', 'OK');
     } else if (!this.areValidVertices()) { // Sono vertici validi, ossia lo stesso vertice non è ripetuto (e disegnano una figura?)
-      this.openSnackBar('Non puoi ripetere lo stesso vertice più di una volta', 'OK');
+        this.openSnackBar('Non puoi ripetere lo stesso vertice più di una volta', 'OK');
+    } else if (this.getNumberOfNotEmptyForms() < this.positionService.minNumberOfVertices) {
+        this.openSnackBar('Devi inserire almeno 3 vertici', 'OK');
     } else {
       this.openDialog();
     }
@@ -210,7 +213,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   inputVerticesOk(): boolean {
     let wrongPositions = 0;
     this.positions.forEach(element => {
-      if (element.hasWrongInput()) {
+      if (element.hasWrongInput() && !element.isEmpty()) {
         wrongPositions++;
       }
     });
@@ -222,11 +225,13 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   areValidVertices(): boolean {
     let repetition = 0;
     this.positions.forEach(element0 => {
-      this.positions.forEach(element1 => {
-        if (element0.sameCoordinates(element1.positionValue) && element0 !== element1) {
-          repetition++;
-        }
-      });
+      if (!element0.isEmpty()) {
+        this.positions.forEach(element1 => {
+          if (element0.sameCoordinates(element1.positionValue) && element0 !== element1) {
+              repetition++;
+          }
+        });
+      }
     });
 
     return repetition === 0;

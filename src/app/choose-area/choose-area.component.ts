@@ -80,12 +80,12 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   }
 
   addFormWithPosition(position: Position): void {
-    if (this.numberOfVertices - this.getNumberOfNotEmptyForms() === 1) {
+    console.log(this.numberOfVertices - this.getNumberOfNotEmptyForms());
+    if (this.numberOfVertices - this.getNumberOfNotEmptyForms() <= 1) {
       this.pushPositionForms(1);
     }
 
     let indexEmptyForm = this.getIndexEmptyForm();
-    console.log(indexEmptyForm);
     const pf = (indexEmptyForm === -1) ? new PositionForm(this.numberOfVertices + 1) : this.positions[indexEmptyForm];
 
     if (indexEmptyForm === -1 && this.positionService.canAddPosition()) {
@@ -100,30 +100,27 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   }
 
   getNumberOfNotEmptyForms(): number {
-    let i = -1;
-    let found = false;
-    this.positions.forEach((p, index) => {
-      if (p.isEmpty() && !found) {
-        i = index;
-        found = true;
-      }
-    });
+      let counter = 0;
+      this.positions.forEach(p => {
+          if (!p.isEmpty()) {
+              counter++;
+          }
+      });
 
-    return i;
+      return counter;
   }
 
   getIndexEmptyForm(): number {
-    let index = -1, i = 0;
-    let found = false;
-    this.positions.forEach(form => {
-      if (form.isEmpty() && !found) {
-        index = i;
-        found = true;
-      }
-      i++;
-    });
+      let i = -1;
+      let found = false;
+      this.positions.forEach((form, index) => {
+          if (form.isEmpty() && !found) {
+              i = index;
+              found = true;
+          }
+      });
 
-    return index;
+      return i;
   }
 
   // Funzione per formattare il label dello slider
@@ -150,14 +147,26 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   // Funzione per rimuovere 'n' form delle posizioni dal fondo
   popPositionForms(n: number) {
     for (let i = 0; i < n; i++) {
-      const removedPosition = this.positions.pop();
+      if (this.numberOfVertices > this.positionService.minNumberOfVertices) {
+          const removedPosition = this.positions.pop();
 
-      if (!removedPosition.isEmpty()) {
-        this.positionService.notifyRemotionFromForm(removedPosition.id);
+          if (!removedPosition.isEmpty()) {
+              this.positionService.notifyRemotionFromForm(removedPosition.id);
+          }
+
+          this.numberOfVertices -= 1;
+      } else {
+        const notEmptyForm = this.getNumberOfNotEmptyForms();
+        console.log(notEmptyForm);
+        if (notEmptyForm > 0) {
+            let index = this.positions.length;
+            while (index-- >= 0 && this.positions[index].isEmpty()) {
+            }
+            this.positions[index].emptyForm();
+            this.positionService.notifyRemotionFromForm(index);
+        }
       }
     }
-
-    this.numberOfVertices -= n;
   }
 
   // Funzione chiamata quando si modifica il valore dello slider
@@ -173,13 +182,6 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   add() {
     if (this.numberOfVertices < this.positionService.maxNumberOfVertices) {
       this.pushPositionForms(1);
-    }
-  }
-
-  // Rimuove un form
-  remove() {
-    if (this.numberOfVertices > this.positionService.minNumberOfVertices) {
-        this.popPositionForms(1);
     }
   }
 

@@ -116,4 +116,11 @@ export class PositionForm {
         return this.positionValue.latitude === undefined &&
                 this.positionValue.longitude === undefined;
     }
+
+    emptyForm(): void {
+        this.positionValue.latitude = undefined;
+        this.positionValue.longitude = undefined;
+        this.group.get('latitude').setValue(undefined);
+        this.group.get('longitude').setValue(undefined);
+    }
 }

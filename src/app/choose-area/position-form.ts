@@ -105,6 +105,15 @@ export class PositionForm {
 
     // Funzione per capire se il form è vuoto
     isEmpty(): boolean {
-        return this.positionValue.latitude === undefined && this.positionValue.longitude === undefined;
+        if (this.group.get('latitude').hasError('required')) {
+            this.positionValue.latitude = undefined;
+        }
+
+        if (this.group.get('longitude').hasError('required')) {
+            this.positionValue.longitude = undefined;
+        }
+
+        return this.positionValue.latitude === undefined &&
+                this.positionValue.longitude === undefined;
     }
 }

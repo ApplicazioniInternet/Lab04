@@ -85,6 +85,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     }
 
     let indexEmptyForm = this.getIndexEmptyForm();
+    console.log(indexEmptyForm);
     const pf = (indexEmptyForm === -1) ? new PositionForm(this.numberOfVertices + 1) : this.positions[indexEmptyForm];
 
     if (indexEmptyForm === -1 && this.positionService.canAddPosition()) {
@@ -99,14 +100,16 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   }
 
   getNumberOfNotEmptyForms(): number {
-    let counter = 0;
-    this.positions.forEach(p => {
-      if (!p.isEmpty()) {
-        counter++;
+    let i = -1;
+    let found = false;
+    this.positions.forEach((p, index) => {
+      if (p.isEmpty() && !found) {
+        i = index;
+        found = true;
       }
     });
 
-    return counter;
+    return i;
   }
 
   getIndexEmptyForm(): number {

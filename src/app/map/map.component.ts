@@ -3,7 +3,7 @@ import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import {MatSnackBar, MatButton, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions, MatDatepickerInputEvent} from '@angular/material';
 import { PositionService } from '../position.service';
 import { Position } from '../position';
-import { icon, latLng, marker, Marker, tileLayer, Map, LayerGroup } from 'leaflet';
+import { icon, latLng, marker, Marker, tileLayer, Map, LayerGroup, latLngBounds } from 'leaflet';
 import { element } from 'protractor';
 import {FormControl} from '@angular/forms';
 
@@ -41,7 +41,10 @@ export class MapComponent implements OnInit {
     this.options = {
       layers: [this.LAYER_OSM],
       zoom: 10,
-      center: latLng(45.116177, 7.742615)
+      maxZoom: 19,
+      minZoom: 1,
+      center: latLng(45.116177, 7.742615),
+      maxBounds: latLngBounds(latLng(90, 180), latLng(-90, -180))
     };
 
     // Metto un listener per capire quando devo pulire tutta la mappa

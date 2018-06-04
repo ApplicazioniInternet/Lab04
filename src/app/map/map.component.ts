@@ -145,11 +145,11 @@ export class MapComponent implements OnInit {
   }
 
   updateSalesMin(date: MatDatepickerInputEvent<Date>) {
-    this.dateMin = date.value.valueOf() / 1000;
+    this.dateMin = date.value.valueOf();
   }
 
   updateSalesMax(date: MatDatepickerInputEvent<Date>) {
-    this.dateMax = date.value.valueOf() / 1000;
+    this.dateMax = date.value.valueOf();
   }
 
   verifySales() {

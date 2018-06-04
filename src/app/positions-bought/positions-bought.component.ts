@@ -18,4 +18,8 @@ export class PositionsBoughtComponent implements OnInit {
       this.positions = positionBought;
     });
   }
+
+  getDate(timestamp: number): string {
+    return new Date(timestamp).toLocaleString();
+  }
 }

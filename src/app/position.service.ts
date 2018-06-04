@@ -57,8 +57,8 @@ export class PositionService {
       shadowUrl: this.SHADOW_URL
     });
 
-    this._dateMin = new Date(2010, 0, 1).valueOf() / 1000;
-    this._dateMax = new Date(2100, 0, 1).valueOf() / 1000;
+    this._dateMin = new Date(2010, 0, 1).valueOf();
+    this._dateMax = new Date(2100, 0, 1).valueOf();
 
     POSITIONS.forEach(p => {
       const newMarker = marker(latLng(p.latitude, p.longitude),

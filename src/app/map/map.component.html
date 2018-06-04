@@ -1,13 +1,27 @@
 <mat-card>
+    <mat-form-field style="padding-right: 20px;">
+        <input matInput [matDatepicker]="picker1" placeholder="Choose min date"
+               (dateInput)="verifySalesMin($event)" (dateChange)="verifySalesMin($event)">
+        <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+        <mat-datepicker #picker1></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field>
+        <input matInput [matDatepicker]="picker2" placeholder="Choose max date"
+               (dateInput)="verifySalesMax($event)" (dateChange)="verifySalesMax($event)">
+        <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+        <mat-datepicker #picker2></mat-datepicker>
+    </mat-form-field>
+
   <div 
     id="map-id" 
     leaflet
     (leafletMapReady)="onMapReady($event)"
     [leafletOptions]="options"
   >
-    <div *ngFor="let marker of markers"
-         [leafletLayer]="marker">
-    </div>
+    <!--<div *ngFor="let marker of markers"-->
+         <!--[leafletLayer]="marker">-->
+    <!--</div>-->
   </div>
 
   <div class="maps-button">

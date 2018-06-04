@@ -44,3 +44,15 @@
 .fill-remaining-space {
   flex: 1 1 auto;
 }
+
+.bg-bought-card {
+  min-height: 300px;
+}
+
+.bg-map-card {
+  min-height: 600px;
+}
+
+.bg-form-card {
+  min-height: 1000px;
+}

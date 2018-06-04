@@ -1,10 +1,11 @@
 import { Component, OnInit, AfterViewInit, ViewEncapsulation, NgZone } from '@angular/core';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
-import { MatSnackBar, MatButton, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/material';
+import {MatSnackBar, MatButton, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions, MatDatepickerInputEvent} from '@angular/material';
 import { PositionService } from '../position.service';
 import { Position } from '../position';
 import { icon, latLng, marker, Marker, tileLayer, Map, LayerGroup } from 'leaflet';
 import { element } from 'protractor';
+import {FormControl} from '@angular/forms';
 
 export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -28,8 +29,12 @@ export class MapComponent implements OnInit {
 
   options;
   map: Map;
-
-  constructor(private positionService: PositionService, public snackBar: MatSnackBar, private zone: NgZone) { }
+  dateMin: number;
+  dateMax: number;
+  constructor(private positionService: PositionService, public snackBar: MatSnackBar, private zone: NgZone) {
+      this.dateMin = this.positionService.dateMin;
+      this.dateMax = this.positionService.dateMax;
+  }
 
   ngOnInit() {
     // Opzioni per il setup iniziale della mappa: dove è centrata, quanto è lo zoom iniziale, il tema del background
@@ -52,6 +57,17 @@ export class MapComponent implements OnInit {
     // Metto un listener per sapere se dal form c'è una posizione nuova inserita
     this.positionService.addedPositionFromForm.subscribe(toBeAddedMarker => {
       this.map.addLayer(toBeAddedMarker);
+    });
+
+    // Metto un listener per sapere se dal form c'è una posizione nuova inserita
+    this.positionService.removedPositionForSale.subscribe(toBeRemovedMarker => {
+        this.map.removeLayer(toBeRemovedMarker);
+    });
+
+    // Metto un listener per sapere se dal form c'è una posizione nuova inserita
+    this.positionService.addedPositionForSale.subscribe(toBeAddedMarker => {
+        console.log(toBeAddedMarker);
+        this.map.addLayer(toBeAddedMarker);
     });
   }
 
@@ -125,6 +141,16 @@ export class MapComponent implements OnInit {
     position.longitude = m.getLatLng().lng;
 
     return position;
+  }
+
+  verifySalesMin(date: MatDatepickerInputEvent<Date>) {
+    this.dateMin = date.value.valueOf() / 1000;
+    this.positionService.verifySales(this.dateMin, this.dateMax);
+  }
+
+  verifySalesMax(date: MatDatepickerInputEvent<Date>) {
+    this.dateMax = date.value.valueOf() / 1000;
+    this.positionService.verifySales(this.dateMin, this.dateMax);
   }
 
   // Apri la snack bar e fai vedere un messaggio con un bottoncino di fianco

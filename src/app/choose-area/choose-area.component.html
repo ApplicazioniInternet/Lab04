@@ -1,21 +1,25 @@
-<div class="container scroll-box">
+<mat-card class="bg-form-card" >
+  <mat-card-title>
+    Posizioni
+  </mat-card-title>
+  <div class="container scroll-box">
   <p>Scegli il numero di punti per disegnare un'area</p>
-  
+
   <button mat-mini-fab class="add-remove" (click)='remove()'>
     <mat-icon>remove</mat-icon>
   </button>
-  
-  <mat-slider 
-    thumbLabel 
+
+  <mat-slider
+    thumbLabel
     id="slider"
-    [displayWith]="formatLabel" 
-    tickInterval="1" 
-    min="3" 
+    [displayWith]="formatLabel"
+    tickInterval="1"
+    min="3"
     max="10"
     [value]="numberOfVertices"
     (input)='pitch($event)'
     ></mat-slider>
-    
+
   <button mat-mini-fab class="add-remove" (click)='add()'>
       <mat-icon>add</mat-icon>
   </button>
@@ -26,9 +30,9 @@
           <div class="container-item"><!-- Inizio container della singola casella di input -->
             <mat-form-field appearance="outline">
               <mat-label>Latitudine vertice #{{i + 1}}</mat-label>
-              <input id="{{i}}-latitude" 
-                    matInput 
-                    [formControl]="position.group.get('latitude')" 
+              <input id="{{i}}-latitude"
+                    matInput
+                    [formControl]="position.group.get('latitude')"
                     (blur)="notify(i, 'latitude', $event)"
                     placeholder="Latitudine">
               <mat-icon matSuffix>place</mat-icon>
@@ -38,9 +42,9 @@
           <div class="container-item"> <!-- Inizio container della singola casella di input -->
             <mat-form-field appearance="outline">
               <mat-label>Longitudine vertice #{{i + 1}}</mat-label>
-              <input id="{{i}}-longitude" 
-                    matInput 
-                    [formControl]="position.group.get('longitude')" 
+              <input id="{{i}}-longitude"
+                    matInput
+                    [formControl]="position.group.get('longitude')"
                     (blur)="notify(i, 'longitude', $event)"
                     placeholder="Longitudine">
               <mat-icon matSuffix>place</mat-icon>
@@ -51,9 +55,10 @@
       </li>
   </ul>
 
-  <button mat-fab 
+  <button mat-fab
           matTooltip="Compra posizioni dentro questa area"
           (click)='submit()'>
     <mat-icon>done</mat-icon>
   </button>
 </div>
+</mat-card>

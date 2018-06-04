@@ -1,4 +1,7 @@
 <mat-card>
+    <mat-card-title>
+        Filtra per data
+    </mat-card-title>
     <mat-form-field style="padding-right: 20px;">
         <input matInput [matDatepicker]="picker1" placeholder="Scegli data di inizio"
                (dateInput)="updateSalesMin($event)" (dateChange)="updateSalesMin($event)">
@@ -13,13 +16,18 @@
         <mat-datepicker #picker2></mat-datepicker>
     </mat-form-field>
 
-    <button mat-fab
+    <button mat-mini-fab
             style="margin-left: 32px;"
             matTooltip="Filtra per data"
             (click)='verifySales()'>
-        <mat-icon style="color: #FFFFFF">refresh</mat-icon>
+        <mat-icon style="color: #FFFFFF">search</mat-icon>
     </button>
+</mat-card>
 
+<mat-card>
+    <mat-card-title>
+        Mappa
+    </mat-card-title>
   <div 
     id="map-id" 
     leaflet
@@ -32,7 +40,7 @@
   </div>
 
   <div class="maps-button">
-    <button mat-fab 
+    <button mat-fab
             style="margin-right: 32px;"
             matTooltip="Elimina ultimo marker"
             (click)='removeLastAddedMarker()'>

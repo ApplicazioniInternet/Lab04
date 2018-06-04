@@ -2,13 +2,13 @@
     <mat-toolbar color="primary"> <!-- Inizio della toolbar -->
       <p style="padding: 64px;">Acquista posizioni</p>
       <span class="fill-remaining-space"></span>
-      <button mat-icon-button 
+      <button mat-icon-button
               style="margin: 4px;"
-              matTooltip="Mostra profilo" 
+              matTooltip="Mostra profilo"
       >
         <mat-icon>account_circle</mat-icon>
       </button>
-      <button mat-icon-button 
+      <button mat-icon-button
               style="margin: 4px;"
               matTooltip="Logout">
         <mat-icon>power_settings_new</mat-icon>
@@ -17,17 +17,11 @@
 
     <div class="bg-map-div"> <!-- Inizio della divisione con la mappa -->
       <app-map></app-map>
-
-    <mat-card class="bg-bought-card" >
-      <mat-card-title>
-        Posizioni acquistate
-      </mat-card-title>
-      <app-positions-bought></app-positions-bought>
-    </mat-card>
-  </div>
+    </div>
 
     <div class="bg-form-div"> <!-- Inizio della divisione del form -->
         <app-choose-area></app-choose-area>
+        <app-positions-bought></app-positions-bought>
     </div> <!-- Fine della divisione del form -->
 
 </div>

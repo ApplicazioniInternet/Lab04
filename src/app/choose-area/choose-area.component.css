@@ -61,5 +61,6 @@ mat-icon {
 
 .scroll-box {
   overflow-y: scroll;
+  height: 550px;
   padding: 1rem
 }

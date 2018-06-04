@@ -69,7 +69,6 @@ export class MapComponent implements OnInit {
 
     // Metto un listener per sapere se dal form c'è una posizione nuova inserita
     this.positionService.addedPositionForSale.subscribe(toBeAddedMarker => {
-        console.log(toBeAddedMarker);
         this.map.addLayer(toBeAddedMarker);
     });
   }
@@ -106,7 +105,6 @@ export class MapComponent implements OnInit {
 
   // Funzione per rimuovere l'ultimo marker che è stato aggiunto
   removeLastAddedMarker(): void {
-    console.log(this.positionService.polygonMarkers.length);
     if (this.positionService.polygonMarkers.length === 0) { // Nessun marker ancora aggiunto
       return;
     }

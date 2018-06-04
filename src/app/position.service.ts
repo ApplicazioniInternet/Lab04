@@ -220,7 +220,6 @@ export class PositionService {
      const positionList: Position[] = new Array<Position>();
 
     for (const pos of this.positionsForSale) {
-      console.log(pos);
       if (this.isPositionsInPolygon(pos, polygon)) {
         positionList.push(pos);
       }

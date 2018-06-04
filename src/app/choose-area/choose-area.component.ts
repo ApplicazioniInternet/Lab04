@@ -80,7 +80,6 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   }
 
   addFormWithPosition(position: Position): void {
-    console.log(this.numberOfVertices - this.getNumberOfNotEmptyForms());
     if (this.numberOfVertices - this.getNumberOfNotEmptyForms() <= 1) {
       this.pushPositionForms(1);
     }
@@ -157,7 +156,6 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
           this.numberOfVertices -= 1;
       } else {
         const notEmptyForm = this.getNumberOfNotEmptyForms();
-        console.log(notEmptyForm);
         if (notEmptyForm > 0) {
             let index = this.positions.length;
             while (index-- >= 0 && this.positions[index].isEmpty()) {

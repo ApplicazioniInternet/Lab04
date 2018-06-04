@@ -89,8 +89,13 @@ export class PositionService {
     return of(this.buyablePositionsMarkers);
   }
 
-  notifyAdditionFromMap(newPosition: Position, newMarker: Marker): void {
-    this.addedPositionFromMap.emit(newPosition);
+  notifyAdditionFromMap(newPositions: Position[], newMarkers: Marker[]): void {
+    newPositions.forEach((newPosition, index) => {
+      this.polygonPosition.push(newPosition);
+      this.polygonMarkers.push(newMarkers[index]);
+      this.addedPositionFromMap.emit(newPosition);
+    });
+
   }
 
   inputFromForm(formIndex: number, discriminator: string, value: number, valid: boolean) {
@@ -127,9 +132,13 @@ export class PositionService {
                               { icon: this.markerIconBlue })
                               .bindPopup('<b>Coordinate:</b><br>LatLng(' + position.latitude + ', ' + position.longitude + ')'
                             );
-    this.polygonPosition[formIndex] = position;
-    this.polygonMarkers[formIndex] = newMarker;
-    this.addedPositionFromForm.emit(newMarker);
+    if (formIndex > this.polygonPosition.length) {
+      this.polygonPosition[formIndex] = position;
+      this.polygonMarkers[formIndex] = newMarker;
+      this.addedPositionFromForm.emit(newMarker);
+    } else {
+      // È stata modificata
+    }
   }
 
   notifyRemoveAllPosition(): void {

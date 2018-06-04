@@ -1,11 +1,13 @@
 import { Component, OnInit, AfterViewInit, ViewEncapsulation, NgZone } from '@angular/core';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { LeafletDrawModule } from '@asymmetrik/ngx-leaflet-draw';
 import {MatSnackBar, MatButton, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions, MatDatepickerInputEvent} from '@angular/material';
 import { PositionService } from '../position.service';
 import { Position } from '../position';
-import { icon, latLng, marker, Marker, tileLayer, Map, LayerGroup, latLngBounds } from 'leaflet';
+import { icon, latLng, marker, Marker, Polygon, tileLayer, Map, LayerGroup, latLngBounds, FeatureGroup, Control, Draw } from 'leaflet';
 import { element } from 'protractor';
 import {FormControl} from '@angular/forms';
+import { GeoJSON } from 'geojson';
 
 export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -28,9 +30,14 @@ export class MapComponent implements OnInit {
   LAYER_OSM = tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 });
 
   options;
+  drawOptions;
+  shapeOptions;
+  editableLayers;
   map: Map;
+  polygon: Polygon = undefined;
   dateMin: number;
   dateMax: number;
+
   constructor(private positionService: PositionService, public snackBar: MatSnackBar, private zone: NgZone) {
       this.dateMin = this.positionService.dateMin;
       this.dateMax = this.positionService.dateMax;
@@ -46,6 +53,35 @@ export class MapComponent implements OnInit {
       center: latLng(45.116177, 7.742615),
       maxBounds: latLngBounds(latLng(90, 180), latLng(-90, -180))
     };
+    this.editableLayers = new FeatureGroup();
+
+    this.shapeOptions = {
+      stroke: true,
+      color: '#fc4482',
+      weight: 4,
+      opacity: 0.5,
+      fill: true,
+      fillColor: null,
+      fillOpacity: 0.2,
+      clickable: true,
+      editable: true
+    };
+
+    this.drawOptions = {
+      position: 'bottomleft',
+      draw: {
+        marker: false,
+        polyline: false,
+        polygon: true,
+        circle: false,
+        rectangle: false,
+        circlemarker: false,
+      },
+      edit: {
+        featureGroup: this.editableLayers,
+        edit: false
+      }
+    };
 
     // Metto un listener per capire quando devo pulire tutta la mappa
     this.positionService.clearAllPositions.subscribe( () => {
@@ -55,11 +91,13 @@ export class MapComponent implements OnInit {
     // Metto un listener per capire quando devo rimuovere una posizione
     this.positionService.removedPositionFromForm.subscribe(toBeRemovedMarker => {
       this.map.removeLayer(toBeRemovedMarker);
+      this.tryAddPolygon();
     });
 
     // Metto un listener per sapere se dal form c'è una posizione nuova inserita
     this.positionService.addedPositionFromForm.subscribe(toBeAddedMarker => {
       this.map.addLayer(toBeAddedMarker);
+      this.tryAddPolygon();
     });
 
     // Metto un listener per sapere se dal form c'è una posizione nuova inserita
@@ -76,6 +114,7 @@ export class MapComponent implements OnInit {
   // Funzione che mi serve per salvarmi la mappa in una variabile locale quando so che è stato tutto inizializzato
   onMapReady(map: Map): void {
     this.map = map;
+    this.map.addLayer(this.editableLayers);
 
     this.positionService.getPositionsForSaleMarkers().subscribe(markers => {
       // Metto un marker per ogni posizione degli utenti presa dal database
@@ -84,23 +123,36 @@ export class MapComponent implements OnInit {
       });
     });
 
-    map.on('click', this.onMapClick, this);
+    this.map.on(Draw.Event.CREATED, this.onDrawMap, this);
+    this.map.on(Draw.Event.DELETED, this.onDeleteFromMap, this);
   }
 
-  // Funzione chiamata quando c'è un click sulla mappa (click per single spot, quindi non click prolungato)
-  onMapClick(e): void {
-    if (!this.positionService.canAddPosition()) {
-      this.openSnackBar('Puoi inserire al massimo 10 vertici', 'OK');
-      return;
-    }
+  // Funzione chiamata quando è terminato il disegno sulla mappa
+  onDrawMap(e: any): void {
+    const arrayCoordinates: Array<Array<number>> = e.layer.toGeoJSON().geometry.coordinates; // Mi pigghio le cuurdinate bbblle
+    const arrayMarkers = [];
+    const arrayPositions = [];
+    arrayCoordinates[0].forEach((point, index) => { // Pensava di fregarmi ma io lo sapevo che c'era lo 0 da mettere eheh
+      if (index !== (arrayCoordinates[0].length - 1)) {
+        const latitudeLongitude = latLng(point[1], point[0]); // Sono invertite nel GeoJSON
+        const newPosition = new Position();
+        const newMarker = marker(latitudeLongitude, { icon: this.positionService.markerIconBlue })
+          .bindPopup('<b>Coordinate:</b><br>' + latitudeLongitude + '');
+        newPosition.latitude = newMarker.getLatLng().lat;
+        newPosition.longitude = newMarker.getLatLng().lng;
 
-    const newPosition = new Position();
-    const newMarker = marker(e.latlng, { icon: this.positionService.markerIconBlue })
-      .bindPopup('<b>Coordinate:</b><br>' + e.latlng + '');
-    newPosition.latitude = newMarker.getLatLng().lat;
-    newPosition.longitude = newMarker.getLatLng().lng;
+        arrayPositions.push(newPosition);
+        arrayMarkers.push(newMarker);
+      }
+    });
 
-    this.positionService.notifyAdditionFromMap(newPosition, newMarker);
+    this.positionService.notifyAdditionFromMap(arrayPositions, arrayMarkers);
+  }
+
+  // Funzione chiamata quando si cancella il disegno dalla mappa
+  onDeleteFromMap(e: any) {
+    this.removeAllMarkers();
+    this.positionService.notifyRemoveAllPosition();
   }
 
   // Funzione per rimuovere l'ultimo marker che è stato aggiunto
@@ -128,6 +180,23 @@ export class MapComponent implements OnInit {
     });
   }
 
+  // Funzione per aggiugnere l'area
+  tryAddPolygon(): void  {
+    if (this.positionService.polygonMarkers.length >= 3) {
+      const latlngs = new Array();
+      let i = 0;
+      this.positionService.polygonMarkers.forEach(point => {
+        latlngs.push(point.getLatLng());
+        console.log(i++);
+      });
+      latlngs.push(latlngs[0]);
+      this.polygon = new Polygon(latlngs, this.shapeOptions);
+      this.editableLayers.addLayer(this.polygon);
+      this.polygon = this.polygon;
+      console.log(this.editableLayers.layers);
+    }
+  }
+
   // Funzione per rimuovere l'ultimo marker dalla mappa
   removeLastMarkerFromMap(): Position {
     const m = this.positionService.removeLastMarker();
@@ -153,7 +222,7 @@ export class MapComponent implements OnInit {
   }
 
   verifySales() {
-    if(this.dateMin >= this.dateMax) {
+    if (this.dateMin >= this.dateMax) {
       this.openSnackBar('La data di inizio deve essere minore della data di fine', 'OK');
       return;
     }

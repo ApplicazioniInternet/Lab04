@@ -252,6 +252,9 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
                   !this.positions[formIndex].hasWrongLongitude();
     if (valid) {
       this.positions[formIndex].updateFormView();
+      if (this.numberOfVertices - 1 === formIndex) {
+        this.pushPositionForms(1);
+      }
     }
     this.positionService.inputFromForm(formIndex, discriminator, +event.target.value, valid);
   }

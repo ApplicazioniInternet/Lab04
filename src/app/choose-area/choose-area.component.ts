@@ -251,7 +251,7 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     if (valid) {
       this.positions[formIndex].updateFormView();
     }
-    this.positionService.inputFromForm(formIndex, discriminator, +event.srcElement.value, valid);
+    this.positionService.inputFromForm(formIndex, discriminator, +event.target.value, valid);
   }
 
   hasElementFocus(name: string): boolean {

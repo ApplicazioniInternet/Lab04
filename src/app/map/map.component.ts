@@ -53,18 +53,20 @@ export class MapComponent implements OnInit {
       center: latLng(45.116177, 7.742615),
       maxBounds: latLngBounds(latLng(90, 180), latLng(-90, -180))
     };
-    this.editableLayers = new FeatureGroup();
 
     this.shapeOptions = {
+      editing: {
+        className: '',
+      },
       stroke: true,
       color: '#fc4482',
       weight: 4,
       opacity: 0.5,
       fill: true,
-      fillColor: null,
+      fillColor: '#fc4482',
       fillOpacity: 0.2,
       clickable: true,
-      editable: true
+      editable: false
     };
 
     this.drawOptions = {
@@ -79,7 +81,8 @@ export class MapComponent implements OnInit {
       },
       edit: {
         featureGroup: this.editableLayers,
-        edit: false
+        edit: false,
+        remove: true
       }
     };
 
@@ -90,13 +93,14 @@ export class MapComponent implements OnInit {
 
     // Metto un listener per capire quando devo rimuovere una posizione
     this.positionService.removedPositionFromForm.subscribe(toBeRemovedMarker => {
-      this.map.removeLayer(toBeRemovedMarker);
-      this.tryAddPolygon();
+      if (this.polygon !== undefined) {
+        this.map.removeLayer(toBeRemovedMarker);
+        this.tryAddPolygon();
+      }
     });
 
     // Metto un listener per sapere se dal form c'è una posizione nuova inserita
-    this.positionService.addedPositionFromForm.subscribe(toBeAddedMarker => {
-      this.map.addLayer(toBeAddedMarker);
+    this.positionService.addedPositionFromForm.subscribe(() => {
       this.tryAddPolygon();
     });
 
@@ -114,6 +118,7 @@ export class MapComponent implements OnInit {
   // Funzione che mi serve per salvarmi la mappa in una variabile locale quando so che è stato tutto inizializzato
   onMapReady(map: Map): void {
     this.map = map;
+    this.editableLayers = new FeatureGroup();
     this.map.addLayer(this.editableLayers);
 
     this.positionService.getPositionsForSaleMarkers().subscribe(markers => {
@@ -129,9 +134,22 @@ export class MapComponent implements OnInit {
 
   // Funzione chiamata quando è terminato il disegno sulla mappa
   onDrawMap(e: any): void {
+    // Pulisco tutto prima di iniziare in caso
+    this.clearMap();
+    this.positionService.notifyRemoveAllPosition();
+
+    // Qua volendo si può estendere a disegnare un po'qualsiasi cosa, dai marker ai cerchi
+    if (e.layer instanceof Polygon) {
+      this.drawPolygon(e);
+    }
+  }
+
+  // Funzione da chiamare quando si disegna un poligono
+  drawPolygon(e: any): void {
     const arrayCoordinates: Array<Array<number>> = e.layer.toGeoJSON().geometry.coordinates; // Mi pigghio le cuurdinate bbblle
     const arrayMarkers = [];
     const arrayPositions = [];
+    const latlngs = [];
     arrayCoordinates[0].forEach((point, index) => { // Pensava di fregarmi ma io lo sapevo che c'era lo 0 da mettere eheh
       if (index !== (arrayCoordinates[0].length - 1)) {
         const latitudeLongitude = latLng(point[1], point[0]); // Sono invertite nel GeoJSON
@@ -143,9 +161,12 @@ export class MapComponent implements OnInit {
 
         arrayPositions.push(newPosition);
         arrayMarkers.push(newMarker);
+        latlngs.push(latLng(newMarker.getLatLng().lat, newMarker.getLatLng().lng));
+        this.map.addLayer(newMarker);
       }
     });
-
+    this.polygon = new Polygon(latlngs, this.shapeOptions);
+    this.map.fitBounds(this.polygon.getBounds());
     this.positionService.notifyAdditionFromMap(arrayPositions, arrayMarkers);
   }
 
@@ -153,15 +174,6 @@ export class MapComponent implements OnInit {
   onDeleteFromMap(e: any) {
     this.removeAllMarkers();
     this.positionService.notifyRemoveAllPosition();
-  }
-
-  // Funzione per rimuovere l'ultimo marker che è stato aggiunto
-  removeLastAddedMarker(): void {
-    if (this.positionService.polygonMarkers.length === 0) { // Nessun marker ancora aggiunto
-      return;
-    }
-    const removedPosition = this.removeLastMarkerFromMap();
-    this.positionService.notifyRemotionFromMap(removedPosition); // Notifico anche tutti quelli che sono in ascolto su questi dati
   }
 
   // Funzione per rimuovere tutti i marker della mappa
@@ -175,42 +187,37 @@ export class MapComponent implements OnInit {
 
   // Funzione per pulire la mappa
   clearMap(): void {
-    this.positionService.polygonMarkers.forEach(e => {
-      this.map.removeLayer(e);
+    this.map.eachLayer((layer) => {
+      if (layer instanceof Marker) {
+        const m: Marker = layer;
+        if (!this.positionService.canBeDeleted(m)) {
+          this.map.removeLayer(layer);
+        }
+      }
+
+      if (layer instanceof Polygon) {
+        this.map.removeLayer(layer);
+      }
     });
   }
 
   // Funzione per aggiugnere l'area
   tryAddPolygon(): void  {
+    this.clearMap();
+
     if (this.positionService.polygonMarkers.length >= 3) {
       const latlngs = new Array();
-      let i = 0;
       this.positionService.polygonMarkers.forEach(point => {
+        this.map.addLayer(point);
         latlngs.push(point.getLatLng());
-        console.log(i++);
       });
       latlngs.push(latlngs[0]);
       this.polygon = new Polygon(latlngs, this.shapeOptions);
+      this.polygon.redraw();
       this.editableLayers.addLayer(this.polygon);
-      this.polygon = this.polygon;
-      console.log(this.editableLayers.layers);
+      this.map.addLayer(this.editableLayers);
+      this.map.fitBounds(this.polygon.getBounds());
     }
-  }
-
-  // Funzione per rimuovere l'ultimo marker dalla mappa
-  removeLastMarkerFromMap(): Position {
-    const m = this.positionService.removeLastMarker();
-    if (m === undefined) {
-      return null;
-    }
-
-    this.map.removeLayer(m);
-
-    const position = new Position();
-    position.latitude = m.getLatLng().lat;
-    position.longitude = m.getLatLng().lng;
-
-    return position;
   }
 
   updateSalesMin(date: MatDatepickerInputEvent<Date>) {
@@ -229,7 +236,7 @@ export class MapComponent implements OnInit {
     this.positionService.verifySales(this.dateMin, this.dateMax);
   }
 
-    // Apri la snack bar e fai vedere un messaggio con un bottoncino di fianco
+  // Apri la snack bar e fai vedere un messaggio con un bottoncino di fianco
   openSnackBar(message: string, action: string) {
     this.zone.run(() => {
       this.snackBar.open(message, action, {

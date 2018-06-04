@@ -15,7 +15,7 @@
     [displayWith]="formatLabel"
     tickInterval="1"
     min="3"
-    max="10"
+    max="20"
     [value]="numberOfVertices"
     (input)='pitch($event)'
     ></mat-slider>
@@ -33,7 +33,7 @@
               <input id="{{i}}-latitude"
                     matInput
                     [formControl]="position.group.get('latitude')"
-                    (blur)="notify(i, 'latitude', $event)"
+                    (blur)="checkIfAddNewForm()"
                     placeholder="Latitudine">
               <mat-icon matSuffix>place</mat-icon>
               <mat-error *ngIf="position.group.get('latitude').invalid">{{position.getErrorMessageLatitude()}}</mat-error>
@@ -45,8 +45,8 @@
               <input id="{{i}}-longitude"
                     matInput
                     [formControl]="position.group.get('longitude')"
-                    (blur)="notify(i, 'longitude', $event)"
-                    placeholder="Longitudine">
+                    placeholder="Longitudine"
+                    (blur)="checkIfAddNewForm()">
               <mat-icon matSuffix>place</mat-icon>
               <mat-error *ngIf="position.group.get('longitude').invalid">{{position.getErrorMessageLongitude()}}</mat-error>
             </mat-form-field>
@@ -56,9 +56,17 @@
   </ul>
 
   <button mat-fab
+          class="fab-button"
           matTooltip="Compra posizioni dentro questa area"
           (click)='submit()'>
     <mat-icon>done</mat-icon>
+  </button>
+
+  <button mat-fab 
+          class="fab-button"
+          matTooltip="Seleziona quest'area sulla mappa" 
+          (click)='showOnMap()'>
+    <mat-icon>maps</mat-icon>
   </button>
 </div>
 </mat-card>

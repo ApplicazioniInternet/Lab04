@@ -4,6 +4,7 @@ import { MatSnackBar, MatButton, MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatSl
 import { PositionForm } from './position-form';
 import { PositionService } from '../position.service';
 import { Position } from '../position';
+import { assertNotNull } from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'app-choose-area',
@@ -75,6 +76,10 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     }
   }
 
+  isFormEmpty(): boolean {
+    return this.getNumberOfNotEmptyForms() === 0;
+  }
+
   getNumberOfVertices(): number {
     return this.numberOfVertices;
   }
@@ -93,22 +98,28 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
 
     this.positions[indexEmptyForm].updateView(position.latitude, position.longitude);
 
-    document.getElementById(indexEmptyForm + '-latitude').focus();
-    document.getElementById(indexEmptyForm + '-longitude').focus();
-    document.getElementById(indexEmptyForm + '-longitude').blur();
+    if (document.getElementById(indexEmptyForm + '-latitude') !== null &&
+        document.getElementById(indexEmptyForm + '-longitude') !== null) {
+      document.getElementById(indexEmptyForm + '-latitude').focus();
+      document.getElementById(indexEmptyForm + '-longitude').focus();
+      document.getElementById(indexEmptyForm + '-longitude').blur();
+    }
   }
 
+  // Funzione per ritornare il numero di form pieni
   getNumberOfNotEmptyForms(): number {
       let counter = 0;
       this.positions.forEach(p => {
-          if (!p.isEmpty()) {
-              counter++;
-          }
+        p.save(); // Per salvare in position value l'input
+        if (!p.isEmpty()) {
+            counter++;
+        }
       });
 
       return counter;
   }
 
+  // Funzione per prendere l'indice del primo form vuoto
   getIndexEmptyForm(): number {
       let i = -1;
       let found = false;
@@ -231,6 +242,13 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
     return repetition === 0;
   }
 
+  checkIfAddNewForm(): void {
+    console.log(this.getNumberOfNotEmptyForms());
+    if (this.numberOfVertices - this.getNumberOfNotEmptyForms() < 1) {
+      this.pushPositionForms(1);
+    }
+  }
+
   // Funzione per aprire il dialog che ti visualizza quante posizioni ci sono nell'area
   openDialog(): void {
     const dialogRef = this.dialog.open(DialogOverviewComponent, {
@@ -246,19 +264,20 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   }
 
   // Funzione che viene chiamata quando si ha finito con un campo del form
-  notify(formIndex: number, discriminator: string, event: any): void {
-    const valid = !this.positions[formIndex].hasWrongInput() &&
-                  !this.positions[formIndex].hasWrongLatitude() &&
-                  !this.positions[formIndex].hasWrongLongitude();
-    if (valid) {
-      this.positions[formIndex].updateFormView();
-      if (this.numberOfVertices - 1 === formIndex) {
-        this.pushPositionForms(1);
-      }
+  showOnMap(): void {
+    if (!this.inputVerticesOk()) { // È corretto l'input
+      this.openSnackBar('Presente almeno un valore errato', 'OK');
+    } else if (!this.areValidVertices()) { // Sono vertici validi, ossia lo stesso vertice non è ripetuto (e disegnano una figura?)
+      this.openSnackBar('Non puoi ripetere lo stesso vertice più di una volta', 'OK');
+    } else if (this.getNumberOfNotEmptyForms() < this.positionService.minNumberOfVertices) {
+      this.openSnackBar('Devi inserire almeno 3 vertici', 'OK');
+    } else {
+      this.popPositionForms(this.numberOfVertices - this.getNumberOfNotEmptyForms() - 1);
+      this.positionService.notifyAdditionFromForm(this.positions, this.getNumberOfNotEmptyForms());
     }
-    this.positionService.inputFromForm(formIndex, discriminator, +event.target.value, valid);
   }
 
+  // Funzione per sapere se un element del DOM ha il focus o no
   hasElementFocus(name: string): boolean {
     return document.getElementById(name) === document.activeElement;
   }

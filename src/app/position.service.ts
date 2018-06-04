@@ -16,7 +16,7 @@ export class PositionService {
   SHADOW_URL = '../assets/images/marker-shadow.png';
 
   minNumberOfVertices = 3;
-  maxNumberOfVertices = 10;
+  maxNumberOfVertices = 20;
   markerIconRed;
   markerIconBlue;
   positionsForSale: Position[] = []; // Posizioni in vendita
@@ -30,7 +30,7 @@ export class PositionService {
   private _dateMax: number;
 
   @Output() addedPositionFromMap: EventEmitter<Position> = new EventEmitter();
-  @Output() addedPositionFromForm: EventEmitter<Marker> = new EventEmitter();
+  @Output() addedPositionFromForm: EventEmitter<void> = new EventEmitter();
   @Output() addedPositionForSale: EventEmitter<Marker> = new EventEmitter();
   @Output() removedPositionFromMap: EventEmitter<Position> = new EventEmitter();
   @Output() removedPositionFromForm: EventEmitter<Marker> = new EventEmitter();
@@ -93,52 +93,30 @@ export class PositionService {
     newPositions.forEach((newPosition, index) => {
       this.polygonPosition.push(newPosition);
       this.polygonMarkers.push(newMarkers[index]);
+    });
+
+    this.polygonPosition.forEach(newPosition => { // ODIO LE COSE ASINCRONEEEEEEEEEEE
       this.addedPositionFromMap.emit(newPosition);
     });
 
   }
 
-  inputFromForm(formIndex: number, discriminator: string, value: number, valid: boolean) {
-    const modification = (this.polygonPosition.length === this.polygonMarkers.length &&
-                          formIndex < this.polygonMarkers.length) ? true : false;
-    if (discriminator === 'latitude') {
-      this.newPosition.latitude = value;
-    } else if (discriminator === 'longitude') {
-      this.newPosition.longitude = value;
-    }
-
-    if (valid &&
-        this.newPosition.latitude !== undefined &&
-        this.newPosition.longitude !== undefined &&
-        !this.alreadyAddedPosition(this.newPosition) &&
-        !modification
-      ) {
-      this.notifyAdditionFromForm(this.newPosition, formIndex);
-      this.initNewPosition();
-    } else if (modification) {
-      this.notifyRemotionFromForm(formIndex);
-      if (discriminator === 'latitude') {
-        this.polygonPosition[formIndex].latitude = value;
-      } else if (discriminator === 'longitude') {
-        this.polygonPosition[formIndex].longitude = value;
+  notifyAdditionFromForm(positions: PositionForm[], numberOfForms: number): void {
+    this.polygonMarkers = new Array();
+    this.polygonPosition = new Array();
+    positions.forEach((position, index) => {
+      if (index > numberOfForms - 1) {
+        return;
       }
-      this.notifyAdditionFromForm(this.polygonPosition[formIndex], formIndex);
-      this.initNewPosition();
-    }
-  }
-
-  notifyAdditionFromForm(position: Position, formIndex: number): void {
-    const newMarker = marker(latLng(position.latitude, position.longitude),
-                              { icon: this.markerIconBlue })
-                              .bindPopup('<b>Coordinate:</b><br>LatLng(' + position.latitude + ', ' + position.longitude + ')'
-                            );
-    if (formIndex > this.polygonPosition.length) {
-      this.polygonPosition[formIndex] = position;
-      this.polygonMarkers[formIndex] = newMarker;
-      this.addedPositionFromForm.emit(newMarker);
-    } else {
-      // È stata modificata
-    }
+      position.save();
+      const newMarker = marker(latLng(position.positionValue.latitude, position.positionValue.longitude),
+        { icon: this.markerIconBlue })
+        .bindPopup('<b>Coordinate:</b><br>LatLng(' + position.positionValue.latitude + ', ' + position.positionValue.longitude + ')'
+        );
+      this.polygonPosition.push(position.positionValue);
+      this.polygonMarkers.push(newMarker);
+      this.addedPositionFromForm.emit();
+    });
   }
 
   notifyRemoveAllPosition(): void {
@@ -172,9 +150,12 @@ export class PositionService {
     this.positionsForSale.forEach((p, index) => {
       this.removeSale(index);
     });
+
+    console.log(dateMin + '  ' + dateMax);
     POSITIONS.forEach( (p, index) => {
       const i = this.positionsForSale.indexOf(p);
       if (p.timestamp > dateMin && p.timestamp < dateMax && i === -1) {
+        console.log('Aggiunta di nuovo posizione: ' + p.id);
           this.newSale(p);
       }
     });
@@ -267,6 +248,10 @@ export class PositionService {
       });
 
       return added;
+  }
+
+  canBeDeleted(mark: Marker): boolean {
+    return this.buyablePositionsMarkers.indexOf(mark) !== -1;
   }
 
   get dateMin(): number {

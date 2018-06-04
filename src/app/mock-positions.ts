@@ -10,6 +10,6 @@ export const POSITIONS: Position[] = [
     { id: 6, latitude: 4.269045, longitude: 51.858157, timestamp: 1527458003000 },
     { id: 7, latitude: 26.269045, longitude: 9.858157, timestamp: 1527348003000 },
     { id: 8, latitude: 44.616461, longitude: 67.928347, timestamp: 1527348003000 },
-    { id: 9, latitude: 36.606461, longitude: 12.928347, timestamp: 1527349003000 },
+    { id: 9, latitude: 36.606461, longitude: 12.928347, timestamp: 1528669577000 },
     { id: 10, latitude: 78.606561, longitude: 10.928347, timestamp: 1527348893000 }
 ];

@@ -40,10 +40,6 @@ mat-slider {
   width: 300px;
 }
 
-mat-fab {
-  margin: 4px;
-}
-
 mat-dialog-container{
   margin: 0 auto;
   align-content: center;
@@ -63,4 +59,8 @@ mat-icon {
   overflow-y: scroll;
   height: 550px;
   padding: 1rem
+}
+
+.fab-button {
+  margin: 16px;
 }

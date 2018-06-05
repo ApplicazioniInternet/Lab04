@@ -57,15 +57,19 @@ export class PositionService {
       shadowUrl: this.SHADOW_URL
     });
 
-    this._dateMin = new Date(2010, 0, 1).valueOf();
-    this._dateMax = new Date(2100, 0, 1).valueOf();
+    this._dateMin = new Date(2018, 4, 25).valueOf();
+    this._dateMax = new Date().valueOf();
 
     POSITIONS.forEach(p => {
-      const newMarker = marker(latLng(p.latitude, p.longitude),
-                                { icon: this.markerIconRed })
-          .bindPopup('<b>Coordinate:</b><br>LatLng(' + p.latitude + ', ' + p.longitude + ')<br>' + new Date(p.timestamp).toLocaleString());
-      this.buyablePositionsMarkers.push(newMarker);
-      this.positionsForSale.push(p);
+      if (p.timestamp > this.dateMin && p.timestamp < this.dateMax) {
+        console.log(p);
+        const newMarker = marker(latLng(p.latitude, p.longitude),
+            {icon: this.markerIconRed})
+            .bindPopup('<b>Coordinate:</b><br>LatLng(' + p.latitude + ', ' + p.longitude + ')<br>'
+                + new Date(p.timestamp).toLocaleString());
+        this.buyablePositionsMarkers.push(newMarker);
+        this.positionsForSale.push(p);
+      }
     });
 
     this.initNewPosition();
@@ -146,15 +150,17 @@ export class PositionService {
     this.newPositionsBought.emit(this.positionsBought);
   }
 
-  verifySales(dateMin: number, dateMax: number) {
+  verifySales() {
     this.positionsForSale.forEach((p, index) => {
-      this.removeSale(index);
+      if (p.timestamp < this.dateMin || p.timestamp > this.dateMax) {
+        this.removeSale(index);
+      }
     });
 
-    console.log(dateMin + '  ' + dateMax);
-    POSITIONS.forEach( (p, index) => {
+      console.log(this.dateMin + '  ' + this.dateMax);
+    POSITIONS.forEach( (p) => {
       const i = this.positionsForSale.indexOf(p);
-      if (p.timestamp > dateMin && p.timestamp < dateMax && i === -1) {
+      if (p.timestamp > this.dateMin && p.timestamp < this.dateMax && i === -1) {
         console.log('Aggiunta di nuovo posizione: ' + p.id);
           this.newSale(p);
       }
@@ -165,13 +171,15 @@ export class PositionService {
     const newMarker = marker(latLng(position.latitude, position.longitude),
         { icon: this.markerIconRed })
         .bindPopup('<b>Coordinate:</b><br>LatLng(' + position.latitude + ', ' + position.longitude + ')<br>'
-            + new Date(position.timestamp).getFullYear());
+            + new Date(position.timestamp).toLocaleString());
     this.buyablePositionsMarkers.push(newMarker);
     this.positionsForSale.push(position);
     this.addedPositionForSale.emit(newMarker);
   }
 
   removeSale(index: number): void {
+    console.log(this.positionsForSale);
+    console.log(index);
     this.positionsForSale.splice(index, 1);
     const toBeRemovedMarker = this.buyablePositionsMarkers.splice(index, 1)[0];
     this.removedPositionForSale.emit(toBeRemovedMarker);

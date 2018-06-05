@@ -37,10 +37,9 @@ export class MapComponent implements OnInit {
   polygon: Polygon = undefined;
   dateMin: number;
   dateMax: number;
-
+  dateInitMin = new FormControl(new Date(2018, 4, 25));
+  dateInitMax = new FormControl(new Date());
   constructor(private positionService: PositionService, public snackBar: MatSnackBar, private zone: NgZone) {
-      this.dateMin = this.positionService.dateMin;
-      this.dateMax = this.positionService.dateMax;
   }
 
   ngOnInit() {
@@ -222,10 +221,12 @@ export class MapComponent implements OnInit {
 
   updateSalesMin(date: MatDatepickerInputEvent<Date>) {
     this.dateMin = date.value.valueOf();
+    this.positionService.dateMin = this.dateMin;
   }
 
   updateSalesMax(date: MatDatepickerInputEvent<Date>) {
     this.dateMax = date.value.valueOf();
+    this.positionService.dateMax = this.dateMax;
   }
 
   verifySales() {
@@ -233,7 +234,7 @@ export class MapComponent implements OnInit {
       this.openSnackBar('La data di inizio deve essere minore della data di fine', 'OK');
       return;
     }
-    this.positionService.verifySales(this.dateMin, this.dateMax);
+    this.positionService.verifySales();
   }
 
   // Apri la snack bar e fai vedere un messaggio con un bottoncino di fianco

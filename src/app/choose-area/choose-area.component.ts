@@ -243,7 +243,6 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
   }
 
   checkIfAddNewForm(): void {
-    console.log(this.getNumberOfNotEmptyForms());
     if (this.numberOfVertices - this.getNumberOfNotEmptyForms() < 1) {
       this.pushPositionForms(1);
     }

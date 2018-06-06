@@ -1,10 +1,8 @@
-import { Component, OnInit, OnDestroy, Input, Inject, Output, EventEmitter, ViewChild, ViewEncapsulation } from '@angular/core';
-import { FormControl, Validators, Form } from '@angular/forms';
-import { MatSnackBar, MatButton, MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatSlider } from '@angular/material';
+import { Component, OnInit, OnDestroy, Inject, ViewEncapsulation } from '@angular/core';
+import { MatSnackBar, MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { PositionForm } from './position-form';
 import { PositionService } from '../position.service';
 import { Position } from '../position';
-import { assertNotNull } from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'app-choose-area',
@@ -74,10 +72,6 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
       const newPositionForm = new PositionForm(counter);
       this.positions.push(newPositionForm);
     }
-  }
-
-  isFormEmpty(): boolean {
-    return this.getNumberOfNotEmptyForms() === 0;
   }
 
   getNumberOfVertices(): number {
@@ -255,11 +249,6 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
       width: '250px',
       data: {  }
     });
-
-    // Callback per quando si chiude il dialog
-    dialogRef.afterClosed().subscribe(result => {
-      this.positionService.notifyRemoveAllPosition();
-    });
   }
 
   // Funzione che viene chiamata quando si ha finito con un campo del form
@@ -274,11 +263,6 @@ export class ChooseAreaComponent implements OnInit, OnDestroy {
       this.popPositionForms(this.numberOfVertices - this.getNumberOfNotEmptyForms() - 1);
       this.positionService.notifyAdditionFromForm(this.positions, this.getNumberOfNotEmptyForms());
     }
-  }
-
-  // Funzione per sapere se un element del DOM ha il focus o no
-  hasElementFocus(name: string): boolean {
-    return document.getElementById(name) === document.activeElement;
   }
 }
 
@@ -306,6 +290,10 @@ export class DialogOverviewComponent implements OnInit {
 
   onConfermaClick(): void {
     this.positionService.buyPositionsInArea(this.positionService.polygonPosition);
+      // Callback per quando si chiude il dialog
+    this.dialogRef.afterClosed().subscribe(result => {
+        this.positionService.notifyRemoveAllPosition();
+    });
     this.dialogRef.close();
   }
 

@@ -6,8 +6,6 @@ export class PositionForm {
     id: number;
     positionValue?: Position;
     group: FormGroup;
-    inputLatitudeField: any;
-    inputLongitudeField: any;
 
     constructor(id: number, latitude?: number, longitude?: number, timestamp?: number) {
         this.id = id;
@@ -37,10 +35,6 @@ export class PositionForm {
     // Funzione per validare il gruppo, ora non fa nulla, ma nel dubbio io ce l'ho cacciata
     validateGroup(g: FormGroup) {
         return (g.get('latitude').valid && g.get('longitude').valid) ? null : { 'mismatch': true };
-    }
-
-    updateFormView(): void {
-        this.updateView(+this.group.get('latitude').value, +this.group.get('longitude').value);
     }
 
     // Funzione per fare l'update dell'input arrivato dalla mappa

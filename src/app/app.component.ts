@@ -1,5 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
-import { MatButton } from '@angular/material';
+import { Component} from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -8,5 +7,4 @@ import { MatButton } from '@angular/material';
 })
 export class AppComponent {
   title = 'app';
-  showFiller = false;
 }

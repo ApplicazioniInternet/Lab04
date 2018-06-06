@@ -1,13 +1,9 @@
-import { Component, OnInit, AfterViewInit, ViewEncapsulation, NgZone } from '@angular/core';
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
-import { LeafletDrawModule } from '@asymmetrik/ngx-leaflet-draw';
-import {MatSnackBar, MatButton, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions, MatDatepickerInputEvent} from '@angular/material';
+import { Component, OnInit, ViewEncapsulation, NgZone } from '@angular/core';
+import { MatSnackBar, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions, MatDatepickerInputEvent} from '@angular/material';
 import { PositionService } from '../position.service';
 import { Position } from '../position';
-import { icon, latLng, marker, Marker, Polygon, tileLayer, Map, LayerGroup, latLngBounds, FeatureGroup, Control, Draw } from 'leaflet';
-import { element } from 'protractor';
-import {FormControl} from '@angular/forms';
-import { GeoJSON } from 'geojson';
+import { latLng, marker, Marker, Polygon, tileLayer, Map, latLngBounds, FeatureGroup, Draw } from 'leaflet';
+import { FormControl } from '@angular/forms';
 
 export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   showDelay: 500,
@@ -58,11 +54,9 @@ export class MapComponent implements OnInit {
         className: '',
       },
       stroke: true,
-      color: '#fc4482',
       weight: 4,
       opacity: 0.5,
       fill: true,
-      fillColor: '#fc4482',
       fillOpacity: 0.2,
       clickable: true,
       editable: false
@@ -145,11 +139,11 @@ export class MapComponent implements OnInit {
 
   // Funzione da chiamare quando si disegna un poligono
   drawPolygon(e: any): void {
-    const arrayCoordinates: Array<Array<number>> = e.layer.toGeoJSON().geometry.coordinates; // Mi pigghio le cuurdinate bbblle
+    const arrayCoordinates: Array<Array<number>> = e.layer.toGeoJSON().geometry.coordinates;
     const arrayMarkers = [];
     const arrayPositions = [];
     const latlngs = [];
-    arrayCoordinates[0].forEach((point, index) => { // Pensava di fregarmi ma io lo sapevo che c'era lo 0 da mettere eheh
+    arrayCoordinates[0].forEach((point, index) => {
       if (index !== (arrayCoordinates[0].length - 1)) {
         const latitudeLongitude = latLng(point[1], point[0]); // Sono invertite nel GeoJSON
         const newPosition = new Position();

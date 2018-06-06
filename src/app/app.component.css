@@ -56,3 +56,16 @@
 .bg-form-card {
   min-height: 1000px;
 }
+
+@media screen and (max-width: 991px) {
+  .bg-form-div{
+    align-content: center;
+    width: 100%;
+    float: none;
+  }
+
+  .bg-map-div{
+    float: none;
+    width: 100%;
+  }
+}

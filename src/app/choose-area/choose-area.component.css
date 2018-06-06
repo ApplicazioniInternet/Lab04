@@ -3,27 +3,17 @@
 }
 
 .container-row {
-  display: flex;
-  flex-direction: row;
-  align-content: center;
   width: 100%;
 }
 
 .container-column {
-    display: flex;
     width: 50%;
-    flex-direction: column;
     align-content: center;
 }
 
 .container-item {
-  display: flex;
-  flex-direction: column;
+  display: inline;
   margin: 4px;
-}
-
-.container-item > * {
-  width: 100%;
 }
 
 .remove-position {
@@ -37,7 +27,7 @@
 }
 
 mat-slider {
-  width: 300px;
+  width: 55%;
 }
 
 mat-dialog-container{
@@ -63,4 +53,13 @@ mat-icon {
 
 .fab-button {
   margin: 16px;
+}
+
+#no-bullet-ul {
+  padding: 0;
+  margin: 0;
+}
+
+mat-form-field {
+  width: 40%;
 }
